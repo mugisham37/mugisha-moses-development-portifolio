@@ -289,7 +289,7 @@ export interface SEOMetadata {
   ogImage: string;
   ogType: string;
   canonicalUrl: string;
-  structuredData?: any;
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 // Asset Types
@@ -346,9 +346,18 @@ export interface NewsletterFormData {
 }
 
 // Analytics Types
+export type AnalyticsPropertyValue = 
+  | string 
+  | number 
+  | boolean 
+  | Date 
+  | string[] 
+  | number[] 
+  | Record<string, string | number | boolean>;
+
 export interface AnalyticsEvent {
   name: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, AnalyticsPropertyValue>;
   timestamp: Date;
   userId?: string;
   sessionId?: string;
@@ -503,10 +512,19 @@ export interface PaginatedResponse<T> {
 }
 
 // Error Types
+export type ErrorDetails = 
+  | string 
+  | number 
+  | boolean 
+  | Record<string, unknown> 
+  | unknown[] 
+  | Error 
+  | null;
+
 export interface AppError {
   code: string;
   message: string;
-  details?: any;
+  details?: ErrorDetails;
   timestamp: Date;
   stack?: string;
 }
@@ -565,3 +583,6 @@ export interface Issue {
   url: string;
   repository: string;
 }
+
+// Re-export webpack types
+export * from './webpack';

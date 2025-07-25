@@ -52,6 +52,7 @@
     "@types/react-dom": "^19",
     "@types/react-syntax-highlighter": "^15.5.0",
     "@types/three": "^0.170.0",
+    "@types/webpack": "^5.28.5",
     "autoprefixer": "^10.4.0",
     "eslint": "^9",
     "eslint-config-next": "15.4.3",
