@@ -1,0 +1,650 @@
+---
+title: "Complete Guide to Next.js App Router: Building Modern Web Applications"
+description: "Master the Next.js App Router with this comprehensive guide covering routing, layouts, server components, and advanced patterns for modern web development."
+publishedAt: "2024-01-05"
+updatedAt: "2024-01-08"
+tags: ["nextjs", "react", "app-router", "server-components", "routing"]
+category: "Framework"
+featured: false
+draft: false
+coverImage: "/blog/nextjs-app-router/cover.jpg"
+coverImageAlt: "Next.js App Router architecture diagram"
+author:
+  name: "Alex Morgan"
+  bio: "Full Stack Developer & Next.js Expert"
+  avatar: "/authors/alex-morgan.jpg"
+relatedPosts: ["react-performance-optimization", "building-3d-web-experiences"]
+---
+
+# Complete Guide to Next.js App Router: Building Modern Web Applications
+
+The Next.js App Router represents a paradigm shift in how we build React applications. With its file-system based routing, server components, and powerful layout system, it enables developers to create fast, scalable web applications with ease.
+
+## Understanding the App Router
+
+The App Router is built on React's latest features, including Server Components, Suspense, and the new React Server Components architecture.
+
+### Key Benefits
+
+- **Server Components by default**: Better performance and SEO
+- **Nested layouts**: Shared UI across routes
+- **Loading and error boundaries**: Better user experience
+- **Parallel and intercepting routes**: Advanced routing patterns
+
+## File-System Based Routing
+
+### Basic Route Structure
+
+```
+app/
+├── page.tsx          # / route
+├── about/
+│   └── page.tsx      # /about route
+├── blog/
+│   ├── page.tsx      # /blog route
+│   └── [slug]/
+│       └── page.tsx  # /blog/[slug] route
+└── dashboard/
+    ├── layout.tsx    # Dashboard layout
+    ├── page.tsx      # /dashboard route
+    └── settings/
+        └── page.tsx  # /dashboard/settings route
+```
+
+### Dynamic Routes
+
+```tsx
+// app/blog/[slug]/page.tsx
+interface BlogPostProps {
+  params: {
+    slug: string;
+  };
+}
+
+export default function BlogPost({ params }: BlogPostProps) {
+  return (
+    <article>
+      <h1>Blog Post: {params.slug}</h1>
+    </article>
+  );
+}
+
+// Generate static params for static generation
+export async function generateStaticParams() {
+  const posts = await getBlogPosts();
+
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+```
+
+### Catch-All Routes
+
+```tsx
+// app/docs/[...slug]/page.tsx
+interface DocsProps {
+  params: {
+    slug: string[];
+  };
+}
+
+export default function Docs({ params }: DocsProps) {
+  const path = params.slug.join("/");
+
+  return (
+    <div>
+      <h1>Documentation: {path}</h1>
+    </div>
+  );
+}
+```
+
+## Layouts and Templates
+
+### Root Layout
+
+```tsx
+// app/layout.tsx
+import { Inter } from "next/font/google";
+import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "My App",
+  description: "Built with Next.js App Router",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        <header>
+          <nav>Navigation</nav>
+        </header>
+        <main>{children}</main>
+        <footer>Footer</footer>
+      </body>
+    </html>
+  );
+}
+```
+
+### Nested Layouts
+
+```tsx
+// app/dashboard/layout.tsx
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="dashboard">
+      <aside>
+        <nav>Dashboard Navigation</nav>
+      </aside>
+      <section>{children}</section>
+    </div>
+  );
+}
+```
+
+### Templates vs Layouts
+
+```tsx
+// app/dashboard/template.tsx
+// Templates create new instances on navigation
+export default function DashboardTemplate({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <div className="dashboard-template">{children}</div>;
+}
+```
+
+## Server and Client Components
+
+### Server Components (Default)
+
+```tsx
+// app/posts/page.tsx
+// This is a Server Component by default
+async function getPosts() {
+  const res = await fetch("https://api.example.com/posts");
+  return res.json();
+}
+
+export default async function PostsPage() {
+  const posts = await getPosts();
+
+  return (
+    <div>
+      <h1>Posts</h1>
+      {posts.map((post) => (
+        <article key={post.id}>
+          <h2>{post.title}</h2>
+          <p>{post.excerpt}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
+### Client Components
+
+```tsx
+// app/components/SearchBox.tsx
+"use client";
+
+import { useState } from "react";
+
+export default function SearchBox() {
+  const [query, setQuery] = useState("");
+
+  return (
+    <input
+      type="text"
+      value={query}
+      onChange={(e) => setQuery(e.target.value)}
+      placeholder="Search..."
+    />
+  );
+}
+```
+
+### Mixing Server and Client Components
+
+```tsx
+// app/blog/page.tsx (Server Component)
+import SearchBox from "./SearchBox"; // Client Component
+import PostList from "./PostList"; // Server Component
+
+async function getBlogPosts() {
+  // Server-side data fetching
+  const posts = await fetch("https://api.example.com/posts");
+  return posts.json();
+}
+
+export default async function BlogPage() {
+  const posts = await getBlogPosts();
+
+  return (
+    <div>
+      <h1>Blog</h1>
+      <SearchBox /> {/* Client Component */}
+      <PostList posts={posts} /> {/* Server Component */}
+    </div>
+  );
+}
+```
+
+## Data Fetching Patterns
+
+### Server-Side Data Fetching
+
+```tsx
+// app/products/page.tsx
+async function getProducts() {
+  const res = await fetch("https://api.example.com/products", {
+    next: { revalidate: 3600 }, // Revalidate every hour
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch products");
+  }
+
+  return res.json();
+}
+
+export default async function ProductsPage() {
+  const products = await getProducts();
+
+  return (
+    <div>
+      {products.map((product) => (
+        <div key={product.id}>
+          <h2>{product.name}</h2>
+          <p>${product.price}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+### Parallel Data Fetching
+
+```tsx
+// app/dashboard/page.tsx
+async function getUser() {
+  const res = await fetch("https://api.example.com/user");
+  return res.json();
+}
+
+async function getStats() {
+  const res = await fetch("https://api.example.com/stats");
+  return res.json();
+}
+
+export default async function DashboardPage() {
+  // Fetch data in parallel
+  const [user, stats] = await Promise.all([getUser(), getStats()]);
+
+  return (
+    <div>
+      <h1>Welcome, {user.name}</h1>
+      <div>Total Sales: {stats.totalSales}</div>
+    </div>
+  );
+}
+```
+
+## Loading and Error Handling
+
+### Loading UI
+
+```tsx
+// app/blog/loading.tsx
+export default function Loading() {
+  return (
+    <div className="animate-pulse">
+      <div className="h-8 bg-gray-200 rounded mb-4"></div>
+      <div className="h-4 bg-gray-200 rounded mb-2"></div>
+      <div className="h-4 bg-gray-200 rounded mb-2"></div>
+      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+    </div>
+  );
+}
+```
+
+### Error Boundaries
+
+```tsx
+// app/blog/error.tsx
+"use client";
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <p>{error.message}</p>
+      <button onClick={reset}>Try again</button>
+    </div>
+  );
+}
+```
+
+### Not Found Pages
+
+```tsx
+// app/blog/[slug]/not-found.tsx
+export default function NotFound() {
+  return (
+    <div>
+      <h2>Post Not Found</h2>
+      <p>The blog post you're looking for doesn't exist.</p>
+    </div>
+  );
+}
+```
+
+## Advanced Routing Patterns
+
+### Parallel Routes
+
+```tsx
+// app/dashboard/@analytics/page.tsx
+export default function Analytics() {
+  return <div>Analytics Dashboard</div>;
+}
+
+// app/dashboard/@team/page.tsx
+export default function Team() {
+  return <div>Team Overview</div>;
+}
+
+// app/dashboard/layout.tsx
+export default function DashboardLayout({
+  children,
+  analytics,
+  team,
+}: {
+  children: React.ReactNode;
+  analytics: React.ReactNode;
+  team: React.ReactNode;
+}) {
+  return (
+    <div>
+      {children}
+      <div className="grid grid-cols-2 gap-4">
+        {analytics}
+        {team}
+      </div>
+    </div>
+  );
+}
+```
+
+### Intercepting Routes
+
+```tsx
+// app/@modal/(.)photo/[id]/page.tsx
+export default function PhotoModal({ params }: { params: { id: string } }) {
+  return (
+    <div className="modal">
+      <img src={`/photos/${params.id}.jpg`} alt="Photo" />
+    </div>
+  );
+}
+
+// app/layout.tsx
+export default function RootLayout({
+  children,
+  modal,
+}: {
+  children: React.ReactNode;
+  modal: React.ReactNode;
+}) {
+  return (
+    <html>
+      <body></body>    {children}
+        {modal}
+      </body>
+    </html>
+  );
+}
+```
+
+## Route Handlers (API Routes)
+
+### Basic API Route
+
+```tsx
+// app/api/posts/route.ts
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET() {
+  const posts = await getPosts();
+  return NextResponse.json(posts);
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const newPost = await createPost(body);
+  return NextResponse.json(newPost, { status: 201 });
+}
+```
+
+### Dynamic API Routes
+
+```tsx
+// app/api/posts/[id]/route.ts
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const post = await getPost(params.id);
+
+  if (!post) {
+    return NextResponse.json({ error: "Post not found" }, { status: 404 });
+  }
+
+  return NextResponse.json(post);
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  await deletePost(params.id);
+  return NextResponse.json({ success: true });
+}
+```
+
+## Metadata and SEO
+
+### Static Metadata
+
+```tsx
+// app/about/page.tsx
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description: "Learn more about our company",
+  keywords: ["about", "company", "team"],
+  openGraph: {
+    title: "About Us",
+    description: "Learn more about our company",
+    images: ["/og-about.jpg"],
+  },
+};
+
+export default function AboutPage() {
+  return <div>About Us</div>;
+}
+```
+
+### Dynamic Metadata
+
+```tsx
+// app/blog/[slug]/page.tsx
+import { Metadata } from "next";
+
+interface Props {
+  params: { slug: string };
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const post = await getPost(params.slug);
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      images: [post.coverImage],
+    },
+  };
+}
+
+export default function BlogPost({ params }: Props) {
+  // Component implementation
+}
+```
+
+## Performance Optimization
+
+### Static Generation
+
+```tsx
+// app/blog/[slug]/page.tsx
+export async function generateStaticParams() {
+  const posts = await getBlogPosts();
+
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+// This page will be statically generated
+export default async function BlogPost({ params }) {
+  const post = await getPost(params.slug);
+  return <article>{post.content}</article>;
+}
+```
+
+### Incremental Static Regeneration
+
+```tsx
+// app/products/page.tsx
+async function getProducts() {
+  const res = await fetch("https://api.example.com/products", {
+    next: { revalidate: 60 }, // Revalidate every 60 seconds
+  });
+  return res.json();
+}
+
+export default async function ProductsPage() {
+  const products = await getProducts();
+  return <div>{/* Render products */}</div>;
+}
+```
+
+## Migration from Pages Router
+
+### Route Mapping
+
+```
+pages/index.js → app/page.js
+pages/about.js → app/about/page.js
+pages/blog/[slug].js → app/blog/[slug]/page.js
+pages/_app.js → app/layout.js
+pages/_document.js → app/layout.js
+pages/404.js → app/not-found.js
+```
+
+### API Routes Migration
+
+```
+pages/api/posts.js → app/api/posts/route.js
+pages/api/posts/[id].js → app/api/posts/[id]/route.js
+```
+
+## Best Practices
+
+### 1. Use Server Components by Default
+
+```tsx
+// ✅ Good - Server Component (default)
+export default async function ProductList() {
+  const products = await getProducts();
+  return <div>{/* Render products */}</div>;
+}
+
+// Only use 'use client' when necessary
+("use client");
+export default function InteractiveComponent() {
+  const [state, setState] = useState();
+  return <div>{/* Interactive UI */}</div>;
+}
+```
+
+### 2. Optimize Data Fetching
+
+```tsx
+// ✅ Good - Parallel data fetching
+export default async function Dashboard() {
+  const [user, posts, stats] = await Promise.all([
+    getUser(),
+    getPosts(),
+    getStats(),
+  ]);
+
+  return <div>{/* Render dashboard */}</div>;
+}
+```
+
+### 3. Use Loading and Error Boundaries
+
+```tsx
+// app/blog/loading.tsx
+export default function Loading() {
+  return <BlogSkeleton />;
+}
+
+// app/blog/error.tsx
+("use client");
+export default function Error({ error, reset }) {
+  return <ErrorComponent error={error} onRetry={reset} />;
+}
+```
+
+## Conclusion
+
+The Next.js App Router provides a powerful foundation for building modern web applications. By leveraging Server Components, nested layouts, and advanced routing patterns, you can create fast, scalable applications with excellent developer experience.
+
+Key takeaways:
+
+- Use Server Components by default for better performance
+- Implement proper loading and error states
+- Leverage parallel and intercepting routes for complex UIs
+- Optimize data fetching with parallel requests
+- Use static generation where possible
+
+The App Router represents the future of Next.js development, offering improved performance, better developer experience, and more powerful routing capabilities.

@@ -1,0 +1,289 @@
+---
+title: "WebGL Fundamentals: Understanding the Graphics Pipeline"
+description: "Essential concepts and practical examples for understanding WebGL and the graphics rendering pipeline."
+publishedAt: "2024-02-10"
+tags: ["webgl", "graphics", "3d", "learning", "fundamentals"]
+category: "Learning Notes"
+featured: false
+draft: false
+author:
+  name: "Alex Morgan"
+  bio: "Full Stack Developer & 3D Web Specialist"
+  avatar: "/authors/alex-morgan.jpg"
+---
+
+# WebGL Fundamentals: Understanding the Graphics Pipeline
+
+These are my learning notes from diving deep into WebGL fundamentals. Understanding the graphics pipeline is crucial for creating efficient 3D web applications.
+
+## What is WebGL?
+
+WebGL (Web Graphics Library) is a JavaScript API for rendering interactive 2D and 3D graphics within any compatible web browser without the use of plug-ins.
+
+<Callout type="info">
+  WebGL is based on OpenGL ES 2.0 and provides similar functionality but in a
+  web context.
+</Callout>
+
+## The Graphics Pipeline
+
+The graphics pipeline is the sequence of steps that WebGL follows to render 3D objects to the screen:
+
+<Timeline
+  items={[
+    {
+      date: "Step 1",
+      title: "Vertex Processing",
+      description:
+        "Transform 3D coordinates to screen coordinates using vertex shaders.",
+    },
+    {
+      date: "Step 2",
+      title: "Primitive Assembly",
+      description:
+        "Group vertices into geometric primitives (triangles, lines, points).",
+    },
+    {
+      date: "Step 3",
+      title: "Rasterization",
+      description: "Convert primitives into fragments (potential pixels).",
+    },
+    {
+      date: "Step 4",
+      title: "Fragment Processing",
+      description: "Determine final pixel colors using fragment shaders.",
+    },
+    {
+      date: "Step 5",
+      title: "Per-Fragment Operations",
+      description: "Apply depth testing, blending, and other operations.",
+    },
+  ]}
+/>
+
+## Shaders: The Heart of WebGL
+
+Shaders are small programs that run on the GPU. There are two main types:
+
+### Vertex Shaders
+
+Process each vertex individually:
+
+```glsl
+// Basic vertex shader
+attribute vec4 a_position;
+attribute vec2 a_texCoord;
+
+uniform mat4 u_matrix;
+
+varying vec2 v_texCoord;
+
+void main() {
+  // Transform the position
+  gl_Position = u_matrix * a_position;
+
+  // Pass texture coordinates to fragment shader
+  v_texCoord = a_texCoord;
+}
+```
+
+### Fragment Shaders
+
+Determine the color of each pixel:
+
+```glsl
+// Basic fragment shader
+precision mediump float;
+
+uniform sampler2D u_texture;
+varying vec2 v_texCoord;
+
+void main() {
+  // Sample the texture
+  gl_FragColor = texture2D(u_texture, v_texCoord);
+}
+```
+
+## Coordinate Systems
+
+Understanding coordinate transformations is essential:
+
+1. **Model Space**: Object's local coordinates
+2. **World Space**: Scene coordinates
+3. **View Space**: Camera coordinates
+4. **Clip Space**: Normalized device coordinates
+5. **Screen Space**: Final pixel coordinates
+
+```javascript
+// Transformation matrices
+const modelMatrix = mat4.create();
+const viewMatrix = mat4.create();
+const projectionMatrix = mat4.create();
+
+// Combined transformation
+const mvpMatrix = mat4.create();
+mat4.multiply(mvpMatrix, projectionMatrix, viewMatrix);
+mat4.multiply(mvpMatrix, mvpMatrix, modelMatrix);
+```
+
+## Buffer Objects
+
+WebGL uses buffer objects to store vertex data:
+
+```javascript
+// Create and bind buffer
+const positionBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+// Upload vertex data
+const positions = [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0];
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+// Set up vertex attribute
+const positionLocation = gl.getAttribLocation(program, "a_position");
+gl.enableVertexAttribArray(positionLocation);
+gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+```
+
+## Textures
+
+Textures add detail to 3D objects:
+
+```javascript
+// Create texture
+const texture = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, texture);
+
+// Set texture parameters
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+// Upload image data
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+```
+
+## Performance Considerations
+
+<Callout type="warning">
+  WebGL performance depends heavily on minimizing state changes and draw calls.
+</Callout>
+
+### Optimization Strategies
+
+1. **Batch Draw Calls**: Combine multiple objects into single draw calls
+2. **Use Instancing**: Render multiple copies efficiently
+3. **Optimize Shaders**: Keep fragment shaders simple
+4. **Texture Atlasing**: Combine multiple textures
+5. **Level of Detail**: Use simpler models at distance
+
+```javascript
+// Instanced rendering example
+const instanceCount = 1000;
+const instanceBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STATIC_DRAW);
+
+// Draw all instances in one call
+gl.drawArraysInstanced(gl.TRIANGLES, 0, vertexCount, instanceCount);
+```
+
+## Debugging WebGL
+
+Essential debugging techniques:
+
+### Check for Errors
+
+```javascript
+function checkGLError(gl, operation) {
+  const error = gl.getError();
+  if (error !== gl.NO_ERROR) {
+    console.error(`WebGL error after ${operation}: ${error}`);
+  }
+}
+```
+
+### Validate Shaders
+
+```javascript
+function compileShader(gl, source, type) {
+  const shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.error("Shader compilation error:", gl.getShaderInfoLog(shader));
+    gl.deleteShader(shader);
+    return null;
+  }
+
+  return shader;
+}
+```
+
+## Common Patterns
+
+### Drawing a Triangle
+
+```javascript
+// Vertex positions
+const positions = [0.0, 1.0, -1.0, -1.0, 1.0, -1.0];
+
+// Create and use shader program
+const program = createProgram(gl, vertexShaderSource, fragmentShaderSource);
+gl.useProgram(program);
+
+// Set up vertex data
+setupVertexData(gl, program, positions);
+
+// Draw
+gl.drawArrays(gl.TRIANGLES, 0, 3);
+```
+
+### Animation Loop
+
+```javascript
+function render(time) {
+  // Clear the canvas
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  // Update uniforms
+  const rotation = time * 0.001;
+  gl.uniform1f(timeLocation, rotation);
+
+  // Draw
+  gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
+
+  // Continue animation
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+```
+
+## Key Takeaways
+
+1. **GPU Programming**: WebGL moves computation to the GPU for parallel processing
+2. **State Machine**: WebGL is a state machine - be mindful of state changes
+3. **Matrix Math**: Understanding linear algebra is crucial for 3D graphics
+4. **Performance**: Minimize draw calls and state changes for better performance
+5. **Debugging**: Always check for errors and validate shaders
+
+## Next Steps
+
+- [ ] Study advanced lighting models (Phong, PBR)
+- [ ] Learn about shadow mapping techniques
+- [ ] Explore compute shaders (WebGL 2.0)
+- [ ] Practice with more complex 3D scenes
+- [ ] Investigate WebGPU as the future of web graphics
+
+<Callout type="success">
+  Understanding these fundamentals provides a solid foundation for working with
+  higher-level libraries like Three.js while knowing what's happening under the
+  hood.
+</Callout>
+
+---
+
+_These notes are part of my ongoing journey to master 3D web development. For more advanced topics, check out my articles on [React Three Fiber](/blog/building-3d-web-experiences) and [performance optimization](/blog/react-performance-optimization)._

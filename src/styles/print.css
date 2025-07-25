@@ -1,0 +1,998 @@
+/* Print-friendly styles for blog posts */
+
+@media print {
+  /* Reset and base styles */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html {
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: white !important;
+    color: black !important;
+    font-family: "Times New Roman", Times, serif;
+  }
+
+  /* Hide non-essential elements */
+  .no-print,
+  nav,
+  .navigation,
+  .sidebar,
+  .share-buttons,
+  .social-share,
+  .floating-toc,
+  .reading-progress,
+  .scroll-indicator,
+  .back-to-top,
+  .newsletter-signup,
+  .comments,
+  .related-posts,
+  .post-navigation,
+  .floating-actions,
+  .mobile-menu,
+  .search-bar,
+  .filters,
+  .pagination,
+  .cookie-banner,
+  .modal,
+  .tooltip,
+  .dropdown,
+  .popup,
+  button:not(.print-keep),
+  .interactive-element,
+  .animation-container,
+  .video-container,
+  .audio-container,
+  .embed-container,
+  .advertisement,
+  .banner,
+  .header-actions,
+  .footer-links,
+  .breadcrumb,
+  .tag-cloud,
+  .author-social,
+  .engagement-stats,
+  .bookmark-button,
+  .like-button,
+  .share-count,
+  .view-count,
+  .reading-time-indicator,
+  .progress-bar,
+  .scroll-progress,
+  .floating-share,
+  .sticky-header,
+  .mobile-nav,
+  .hamburger-menu,
+  .search-overlay,
+  .filter-dropdown,
+  .sort-options,
+  .load-more,
+  .infinite-scroll,
+  .lazy-load-trigger,
+  .skeleton-loader,
+  .loading-spinner,
+  .error-boundary,
+  .debug-info,
+  .dev-tools,
+  .analytics-tracker,
+  .cookie-consent,
+  .gdpr-notice,
+  .subscription-popup,
+  .newsletter-modal,
+  .feedback-widget,
+  .chat-widget,
+  .help-button,
+  .support-link,
+  .external-link-icon,
+  .copy-button,
+  .expand-button,
+  .collapse-button,
+  .show-more,
+  .show-less,
+  .toggle-content,
+  .accordion-trigger,
+  .tab-navigation,
+  .carousel-controls,
+  .slider-dots,
+  .image-gallery-nav,
+  .lightbox-controls,
+  .zoom-controls,
+  .fullscreen-button,
+  .play-button,
+  .pause-button,
+  .volume-control,
+  .playback-speed,
+  .video-controls,
+  .audio-controls,
+  .media-overlay,
+  .interactive-chart,
+  .data-visualization,
+  .map-container,
+  .embed-iframe,
+  .third-party-widget,
+  .social-media-embed,
+  .twitter-embed,
+  .instagram-embed,
+  .youtube-embed,
+  .codepen-embed,
+  .github-gist,
+  .interactive-demo,
+  .live-preview,
+  .code-playground,
+  .sandbox-container,
+  .editor-container,
+  .terminal-container,
+  .console-output,
+  .debug-console,
+  .error-message,
+  .warning-message,
+  .info-message,
+  .success-message,
+  .notification,
+  .toast,
+  .alert-banner,
+  .status-indicator,
+  .badge-interactive,
+  .chip-removable,
+  .tag-editable,
+  .label-clickable,
+  .link-preview,
+  .url-preview,
+  .metadata-preview,
+  .rich-preview,
+  .card-interactive,
+  .tile-clickable,
+  .panel-collapsible,
+  .section-expandable,
+  .content-toggleable,
+  .text-expandable,
+  .image-zoomable,
+  .gallery-interactive,
+  .carousel-interactive,
+  .slider-interactive,
+  .range-input,
+  .color-picker,
+  .date-picker,
+  .time-picker,
+  .file-upload,
+  .drag-drop,
+  .sortable-list,
+  .draggable-item,
+  .resizable-element,
+  .moveable-element,
+  .interactive-form,
+  .form-validation,
+  .input-suggestions,
+  .autocomplete,
+  .typeahead,
+  .search-suggestions,
+  .filter-suggestions,
+  .tag-suggestions,
+  .mention-suggestions,
+  .emoji-picker,
+  .rich-text-editor,
+  .wysiwyg-editor,
+  .markdown-editor,
+  .code-editor,
+  .syntax-highlighter-toolbar,
+  .line-numbers-interactive,
+  .code-folding,
+  .code-minimap,
+  .editor-gutter,
+  .editor-scrollbar,
+  .editor-cursor,
+  .editor-selection,
+  .editor-highlight,
+  .search-highlight,
+  .find-replace,
+  .goto-line,
+  .command-palette,
+  .context-menu,
+  .right-click-menu,
+  .dropdown-menu,
+  .select-dropdown,
+  .multi-select,
+  .checkbox-group,
+  .radio-group,
+  .toggle-switch,
+  .slider-control,
+  .progress-control,
+  .loading-control,
+  .spinner-control,
+  .skeleton-control,
+  .placeholder-control,
+  .empty-state,
+  .no-results,
+  .error-state,
+  .offline-indicator,
+  .connection-status,
+  .sync-status,
+  .save-status,
+  .draft-indicator,
+  .published-indicator,
+  .version-indicator,
+  .last-modified,
+  .auto-save,
+  .manual-save,
+  .export-button,
+  .import-button,
+  .download-button,
+  .upload-button,
+  .print-button,
+  .email-button,
+  .sms-button,
+  .call-button,
+  .video-call-button,
+  .screen-share-button,
+  .record-button,
+  .screenshot-button,
+  .clipboard-button,
+  .bookmark-manager,
+  .history-manager,
+  .settings-panel,
+  .preferences-panel,
+  .configuration-panel,
+  .admin-panel,
+  .dashboard-widget,
+  .analytics-widget,
+  .chart-widget,
+  .graph-widget,
+  .table-widget,
+  .list-widget,
+  .grid-widget,
+  .card-widget,
+  .tile-widget,
+  .panel-widget,
+  .sidebar-widget,
+  .header-widget,
+  .footer-widget,
+  .floating-widget,
+  .overlay-widget,
+  .modal-widget,
+  .popup-widget,
+  .tooltip-widget,
+  .notification-widget,
+  .alert-widget,
+  .banner-widget,
+  .carousel-widget,
+  .slider-widget,
+  .gallery-widget,
+  .media-widget,
+  .video-widget,
+  .audio-widget,
+  .image-widget,
+  .text-widget,
+  .rich-text-widget,
+  .markdown-widget,
+  .code-widget,
+  .syntax-widget,
+  .editor-widget,
+  .form-widget,
+  .input-widget,
+  .button-widget,
+  .link-widget,
+  .navigation-widget,
+  .menu-widget,
+  .breadcrumb-widget,
+  .pagination-widget,
+  .search-widget,
+  .filter-widget,
+  .sort-widget,
+  .tag-widget,
+  .category-widget,
+  .archive-widget,
+  .calendar-widget,
+  .date-widget,
+  .time-widget,
+  .clock-widget,
+  .timer-widget,
+  .countdown-widget,
+  .progress-widget,
+  .loading-widget,
+  .spinner-widget,
+  .skeleton-widget,
+  .placeholder-widget,
+  .empty-widget,
+  .error-widget,
+  .success-widget,
+  .warning-widget,
+  .info-widget,
+  .help-widget,
+  .support-widget,
+  .contact-widget,
+  .feedback-widget,
+  .rating-widget,
+  .review-widget,
+  .comment-widget,
+  .discussion-widget,
+  .forum-widget,
+  .chat-widget,
+  .messaging-widget,
+  .notification-center,
+  .activity-feed,
+  .news-feed,
+  .timeline-widget,
+  .history-widget,
+  .log-widget,
+  .debug-widget,
+  .console-widget,
+  .terminal-widget,
+  .command-widget,
+  .script-widget,
+  .api-widget,
+  .webhook-widget,
+  .integration-widget,
+  .plugin-widget,
+  .extension-widget,
+  .addon-widget,
+  .module-widget,
+  .component-widget,
+  .element-widget,
+  .block-widget,
+  .section-widget,
+  .container-widget,
+  .wrapper-widget,
+  .layout-widget,
+  .grid-layout,
+  .flex-layout,
+  .absolute-layout,
+  .fixed-layout,
+  .sticky-layout,
+  .relative-layout,
+  .static-layout,
+  .responsive-layout,
+  .mobile-layout,
+  .tablet-layout,
+  .desktop-layout,
+  .print-layout,
+  .screen-layout,
+  .media-query,
+  .breakpoint,
+  .viewport,
+  .container-query,
+  .feature-query,
+  .supports-query,
+  .orientation-query,
+  .resolution-query,
+  .color-scheme-query,
+  .prefers-query,
+  .motion-query,
+  .contrast-query,
+  .transparency-query,
+  .hover-query,
+  .pointer-query,
+  .any-hover-query,
+  .any-pointer-query,
+  .update-query,
+  .overflow-block-query,
+  .overflow-inline-query,
+  .display-mode-query,
+  .environment-query,
+  .scripting-query,
+  .dynamic-range-query,
+  .video-dynamic-range-query,
+  .color-gamut-query,
+  .inverted-colors-query,
+  .forced-colors-query,
+  .light-level-query,
+  .user-preference {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: none !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+  }
+
+  /* Page layout */
+  .print-container {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+  }
+
+  /* Article header */
+  .article-header {
+    margin-bottom: 2cm;
+    padding-bottom: 1cm;
+    border-bottom: 2pt solid #333;
+  }
+
+  .article-title {
+    font-size: 24pt !important;
+    font-weight: bold !important;
+    color: black !important;
+    margin: 0 0 0.5cm 0 !important;
+    line-height: 1.2 !important;
+    page-break-after: avoid;
+  }
+
+  .article-subtitle {
+    font-size: 16pt !important;
+    color: #666 !important;
+    margin: 0 0 1cm 0 !important;
+    font-style: italic;
+    page-break-after: avoid;
+  }
+
+  .article-meta {
+    font-size: 10pt !important;
+    color: #666 !important;
+    margin-bottom: 0.5cm;
+  }
+
+  .article-author {
+    font-weight: bold;
+  }
+
+  .article-date {
+    margin-left: 1em;
+  }
+
+  .article-tags {
+    margin-top: 0.5cm;
+  }
+
+  .article-tag {
+    display: inline-block;
+    background: #f0f0f0 !important;
+    color: #333 !important;
+    padding: 2pt 6pt;
+    margin-right: 6pt;
+    border: 1pt solid #ccc;
+    font-size: 9pt;
+  }
+
+  /* Article content */
+  .article-content {
+    font-size: 11pt !important;
+    line-height: 1.6 !important;
+    color: black !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Typography */
+  h1, h2, h3, h4, h5, h6 {
+    color: black !important;
+    font-weight: bold !important;
+    margin: 1cm 0 0.5cm 0 !important;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  h1 {
+    font-size: 18pt !important;
+    border-bottom: 1pt solid #333;
+    padding-bottom: 0.2cm;
+  }
+
+  h2 {
+    font-size: 16pt !important;
+    border-bottom: 0.5pt solid #666;
+    padding-bottom: 0.1cm;
+  }
+
+  h3 {
+    font-size: 14pt !important;
+  }
+
+  h4 {
+    font-size: 12pt !important;
+  }
+
+  h5, h6 {
+    font-size: 11pt !important;
+  }
+
+  p {
+    margin: 0 0 0.5cm 0 !important;
+    text-align: justify;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Lists */
+  ul, ol {
+    margin: 0.5cm 0 !important;
+    padding-left: 1cm !important;
+  }
+
+  li {
+    margin-bottom: 0.2cm;
+    page-break-inside: avoid;
+  }
+
+  /* Links */
+  a {
+    color: black !important;
+    text-decoration: underline !important;
+  }
+
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #666;
+    font-style: italic;
+  }
+
+  a[href^="#"]:after,
+  a[href^="javascript:"]:after,
+  a[href^="mailto:"]:after {
+    content: "";
+  }
+
+  /* Code blocks */
+  pre, code {
+    font-family: "Courier New", Courier, monospace !important;
+    font-size: 9pt !important;
+    background: #f8f8f8 !important;
+    border: 1pt solid #ddd !important;
+    page-break-inside: avoid;
+  }
+
+  pre {
+    padding: 0.5cm !important;
+    margin: 0.5cm 0 !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow: visible !important;
+  }
+
+  code {
+    padding: 1pt 3pt !important;
+  }
+
+  /* Blockquotes */
+  blockquote {
+    margin: 0.5cm 1cm !important;
+    padding: 0.3cm 0.5cm !important;
+    border-left: 3pt solid #ccc !important;
+    background: #f9f9f9 !important;
+    font-style: italic;
+    page-break-inside: avoid;
+  }
+
+  /* Tables */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 0.5cm 0 !important;
+    font-size: 10pt !important;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    border: 1pt solid #333 !important;
+    padding: 0.2cm !important;
+    text-align: left !important;
+    vertical-align: top !important;
+  }
+
+  th {
+    background: #f0f0f0 !important;
+    font-weight: bold !important;
+  }
+
+  /* Images */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    margin: 0.5cm auto !important;
+    page-break-inside: avoid;
+    border: 1pt solid #ddd !important;
+  }
+
+  .image-caption {
+    font-size: 9pt !important;
+    color: #666 !important;
+    text-align: center !important;
+    margin: 0.2cm 0 0.5cm 0 !important;
+    font-style: italic;
+  }
+
+  /* Callouts and special content */
+  .callout {
+    margin: 0.5cm 0 !important;
+    padding: 0.3cm 0.5cm !important;
+    border: 1pt solid #ccc !important;
+    background: #f9f9f9 !important;
+    page-break-inside: avoid;
+  }
+
+  .callout-info {
+    border-left: 3pt solid #2196F3 !important;
+  }
+
+  .callout-warning {
+    border-left: 3pt solid #FF9800 !important;
+  }
+
+  .callout-success {
+    border-left: 3pt solid #4CAF50 !important;
+  }
+
+  .callout-error {
+    border-left: 3pt solid #F44336 !important;
+  }
+
+  /* Table of contents */
+  .table-of-contents {
+    margin: 1cm 0 !important;
+    padding: 0.5cm !important;
+    border: 1pt solid #ccc !important;
+    background: #f9f9f9 !important;
+    page-break-inside: avoid;
+  }
+
+  .toc-title {
+    font-size: 14pt !important;
+    font-weight: bold !important;
+    margin-bottom: 0.5cm !important;
+  }
+
+  .toc-list {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .toc-item {
+    margin-bottom: 0.2cm !important;
+    page-break-inside: avoid;
+  }
+
+  .toc-link {
+    text-decoration: none !important;
+    color: black !important;
+  }
+
+  .toc-link:after {
+    content: none !important;
+  }
+
+  .toc-page-number {
+    float: right;
+    font-weight: bold;
+  }
+
+  /* Page breaks */
+  .page-break {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .no-page-break {
+    page-break-inside: avoid;
+  }
+
+  /* Headers and footers */
+  @page {
+    margin: 2cm;
+    size: A4;
+    
+    @top-left {
+      content: "Alex Morgan's Blog";
+      font-size: 9pt;
+      color: #666;
+    }
+    
+    @top-right {
+      content: counter(page);
+      font-size: 9pt;
+      color: #666;
+    }
+    
+    @bottom-center {
+      content: "https://alexmorgan.dev";
+      font-size: 8pt;
+      color: #999;
+    }
+  }
+
+  @page :first {
+    @top-left {
+      content: "";
+    }
+    
+    @top-right {
+      content: "";
+    }
+  }
+
+  /* Print utilities */
+  .print-only {
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  .screen-only {
+    display: none !important;
+  }
+
+  /* Ensure proper spacing */
+  .article-section {
+    margin-bottom: 1cm;
+  }
+
+  .article-subsection {
+    margin-bottom: 0.5cm;
+  }
+
+  /* Fix for webkit print issues */
+  * {
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Ensure text is readable */
+  .text-muted,
+  .text-secondary,
+  .text-light {
+    color: #666 !important;
+  }
+
+  /* Fix for dark mode elements */
+  .dark,
+  .dark-mode,
+  [data-theme="dark"] {
+    background: white !important;
+    color: black !important;
+  }
+
+  .dark *,
+  .dark-mode *,
+  [data-theme="dark"] * {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Ensure proper contrast */
+  .bg-primary,
+  .bg-secondary,
+  .bg-dark,
+  .bg-muted {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Print-specific content */
+  .print-url:after {
+    content: " (https://alexmorgan.dev)";
+    font-size: 9pt;
+    color: #666;
+  }
+
+  .print-date:before {
+    content: "Printed on: ";
+    font-weight: normal;
+  }
+
+  .print-author:before {
+    content: "By: ";
+    font-weight: normal;
+  }
+
+  /* Ensure proper page flow */
+  article {
+    page-break-inside: auto;
+  }
+
+  section {
+    page-break-inside: avoid;
+  }
+
+  /* Fix for flexbox and grid layouts */
+  .flex,
+  .grid,
+  .d-flex,
+  .d-grid {
+    display: block !important;
+  }
+
+  .flex > *,
+  .grid > *,
+  .d-flex > *,
+  .d-grid > * {
+    display: block !important;
+    width: auto !important;
+    margin-bottom: 0.5cm;
+  }
+
+  /* Ensure proper text flow */
+  .text-center {
+    text-align: center !important;
+  }
+
+  .text-right {
+    text-align: right !important;
+  }
+
+  .text-left {
+    text-align: left !important;
+  }
+
+  .text-justify {
+    text-align: justify !important;
+  }
+}/*
+ Resume Print Styles */
+@media print {
+  .resume-container {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 20mm !important;
+    background: white !important;
+    color: black !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    box-shadow: none !important;
+  }
+
+  .print-optimized {
+    background: white !important;
+    color: black !important;
+  }
+
+  .print-optimized * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .print-optimized .bg-gradient-to-r,
+  .print-optimized .bg-gradient-to-br,
+  .print-optimized .bg-gradient-to-l {
+    background: white !important;
+  }
+
+  .print-optimized .text-blue-600,
+  .print-optimized .text-purple-600,
+  .print-optimized .text-green-600 {
+    color: #374151 !important;
+    font-weight: 600 !important;
+  }
+
+  .print-optimized .border {
+    border-color: #d1d5db !important;
+  }
+
+  .print-optimized .shadow-sm,
+  .print-optimized .shadow-md,
+  .print-optimized .shadow-lg {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  /* Hide interactive elements in print */
+  .print-optimized button,
+  .print-optimized .cursor-pointer,
+  .print-optimized [role="button"] {
+    display: none !important;
+  }
+
+  /* Ensure proper page breaks */
+  .print-optimized .page-break-before {
+    page-break-before: always !important;
+  }
+
+  .print-optimized .page-break-after {
+    page-break-after: always !important;
+  }
+
+  .print-optimized .page-break-inside-avoid {
+    page-break-inside: avoid !important;
+  }
+}
+
+/* Presentation Mode Styles */
+.presentation-mode {
+  background: #1a1a1a !important;
+  color: white !important;
+  font-size: 18px !important;
+  line-height: 1.6 !important;
+}
+
+.presentation-mode .max-w-7xl {
+  max-width: 90vw !important;
+}
+
+.presentation-mode h1 {
+  font-size: 3rem !important;
+}
+
+.presentation-mode h2 {
+  font-size: 2.5rem !important;
+}
+
+.presentation-mode h3 {
+  font-size: 2rem !important;
+}
+
+.presentation-mode .text-sm {
+  font-size: 1.2rem !important;
+}
+
+.presentation-mode .text-xs {
+  font-size: 1rem !important;
+}
+
+/* Creative Layout Styles */
+.creative-layout {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  min-height: 100vh;
+}
+
+.creative-layout .creative-section {
+  margin-bottom: 2rem;
+}
+
+.creative-header {
+  position: relative;
+  padding: 3rem 0;
+}
+
+/* Minimal Layout Styles */
+.minimal-layout {
+  background: white;
+  color: #374151;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.minimal-layout .minimal-section {
+  margin-bottom: 3rem;
+}
+
+.minimal-layout h2 {
+  font-weight: 300;
+  letter-spacing: 0.05em;
+}
+
+/* Standard Layout Styles */
+.standard-section {
+  margin-bottom: 3rem;
+}
+
+.standard-section h2 {
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+/* Animation overrides for print */
+@media print {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
