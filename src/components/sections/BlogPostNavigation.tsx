@@ -47,7 +47,8 @@ export function BlogPostNavigation({ previousPost, nextPost }: BlogPostNavigatio
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                        <div className="text-lg font-bold text-primary/50"></div>                 {previousPost.title.charAt(0)}
+                        <div className="text-lg font-bold text-primary/50">
+                          {previousPost.title.charAt(0)}
                         </div>
                       </div>
                     )}

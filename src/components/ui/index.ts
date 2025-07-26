@@ -13,7 +13,9 @@ export { Grid } from "./Grid";
 export { Badge } from "./Badge";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs";
 export { CodeBlock } from "./CodeBlock";
-export { Input } from "./Input";
+// TODO: Fix Input export issue
+// export type { InputProps } from "./Input";
+// export { Input } from "./Input";
 export { default as ThemeSwitcher, ThemePreview } from "./ThemeSwitcher";
 export { default as ThemeStatus } from "./ThemeStatus";
 export { default as ThemeConfiguration } from "./ThemeConfiguration";

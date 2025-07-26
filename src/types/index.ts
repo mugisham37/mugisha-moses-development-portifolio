@@ -281,7 +281,7 @@ export interface BlogPost {
 export interface Author {
   name: string;
   bio: string;
-  avatar: string;
+  avatar?: string;
   social: SocialLinks;
 }
 

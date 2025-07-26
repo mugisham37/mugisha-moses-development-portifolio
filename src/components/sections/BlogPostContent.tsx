@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ReadingProgress } from "@/components/interactive/ReadingProgress";
 import { TableOfContents } from "@/components/interactive/TableOfContents";
@@ -126,10 +127,12 @@ export function BlogPostContent({ post, mdxSource }: BlogPostContentProps) {
             <div className="mt-8 p-6 bg-muted/50 rounded-lg">
               <div className="flex items-start gap-4">
                 {post.author.avatar && (
-                  <img
+                  <Image
                     src={post.author.avatar}
                     alt={post.author.name}
-                    className="w-16 h-16 rounded-full"
+                    width={64}
+                    height={64}
+                    className="w-16 h-16 rounded-full object-cover"
                   />
                 )}
                 <div className="flex-1">

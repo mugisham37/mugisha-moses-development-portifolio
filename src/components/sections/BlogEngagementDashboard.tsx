@@ -10,12 +10,8 @@ import {
   Eye, 
   TrendingUp,
   Users,
-  Clock,
-  Calendar,
-  Award,
   Rss,
   Download,
-  Printer,
   ExternalLink
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
@@ -250,7 +246,7 @@ export function BlogEngagementDashboard({
             ].map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as 'engagement' | 'sharing' | 'export')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors flex-1 justify-center ${
                   activeTab === tab.id
                     ? 'bg-background text-foreground shadow-sm'
@@ -384,7 +380,8 @@ export function BlogEngagementDashboard({
                               <div className="p-2 bg-primary/10 rounded-lg">
                                 <feed.icon className="w-4 h-4 text-primary" />
                               </div>
-                              <div></div>                        <div className="font-medium">{feed.title}</div>
+                              <div>
+                                <div className="font-medium">{feed.title}</div>
                                 <div className="text-sm text-muted-foreground">
                                   {feed.description}
                                 </div>
@@ -394,21 +391,15 @@ export function BlogEngagementDashboard({
                               <Badge variant="outline" className="text-xs">
                                 {feed.format}
                               </Badge>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                asChild
+                              <a
+                                href={feed.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
                               >
-                                <a
-                                  href={feed.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-1"
-                                >
-                                  <ExternalLink className="w-3 h-3" />
-                                  <span>Subscribe</span>
-                                </a>
-                              </Button>
+                                <ExternalLink className="w-3 h-3" />
+                                <span>Subscribe</span>
+                              </a>
                             </div>
                           </div>
                         </Card>

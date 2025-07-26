@@ -79,7 +79,7 @@ export function BlogGrid({
             <Card className="group overflow-hidden h-full hover:shadow-xl transition-all duration-500 flex flex-col">
               <Link
                 href={`/blog/${post.slug}`}
-                className="block flex-1 flex flex-col"
+                className="flex-1 flex flex-col"
               >
                 {/* Cover Image */}
                 <div className="relative h-48 overflow-hidden">
@@ -230,7 +230,8 @@ export function BlogGrid({
               })
               .map((page, index, array) => {
                 // Add ellipsis if there's a gap
-                const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                const prevPage = index > 0 ? array[index - 1] : undefined;
+                const showEllipsis = prevPage !== undefined && page - prevPage > 1;
 
                 return (
                   <div key={page} className="flex items-center gap-1">

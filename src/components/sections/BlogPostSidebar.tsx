@@ -230,6 +230,41 @@ export function BlogPostSidebar({ post, allPosts }: BlogPostSidebarProps) {
         </motion.div>
       )}
 
+      {/* Related Tags */}
+      {relatedTags.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <Card className="p-6">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <Hash className="w-5 h-5 text-primary" />
+              Related Tags
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {relatedTags.map((tag, index) => (
+                <motion.div
+                  key={tag}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.3 + index * 0.05 }}
+                >
+                  <Link href={`/blog?tag=${encodeURIComponent(tag.toLowerCase())}`}>
+                    <Badge 
+                      variant="outline" 
+                      className="text-xs hover:bg-primary/10 hover:border-primary/30 transition-colors cursor-pointer"
+                    >
+                      #{tag}
+                    </Badge>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </Card>
+        </motion.div>
+      )}
+
       {/* Recent Posts */}
       {recentPosts.length > 0 && (
         <motion.div

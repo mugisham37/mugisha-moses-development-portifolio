@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Clock, User, ArrowLeft, Share2, Bookmark } from "lucide-react";
+import { Calendar, Clock, User, ArrowLeft, Bookmark } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ShareButtons } from "@/components/interactive/ShareButtons";
@@ -69,7 +69,8 @@ export function BlogPostHeader({ post }: BlogPostHeaderProps) {
             >
               {post.category}
             </Badge>
-            <div className="flex items-center gap-1 text-white/80"></div>    <Clock className="w-4 h-4" />
+            <div className="flex items-center gap-1 text-white/80">
+              <Clock className="w-4 h-4" />
               <span className="text-sm">{post.readingTime} min read</span>
             </div>
             {post.featured && (
