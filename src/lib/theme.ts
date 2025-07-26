@@ -120,11 +120,11 @@ export interface ThemeContextType {
   config: ThemeConfig;
   toggleTheme: () => void;
   cycleTheme: () => void;
-  isTransitioning?: boolean;
-  previousTheme?: Theme | null;
-  resetToSystem?: () => void;
-  hasManualPreference?: boolean;
-  systemTheme?: "light" | "dark";
+  isTransitioning: boolean;
+  previousTheme: Theme | null;
+  resetToSystem: () => void;
+  hasManualPreference: boolean;
+  systemTheme: "light" | "dark";
 }
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(

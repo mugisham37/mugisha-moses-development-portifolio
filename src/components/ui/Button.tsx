@@ -21,6 +21,7 @@ interface ButtonProps extends Omit<HTMLMotionProps<"button">, "size"> {
   children: React.ReactNode;
   className?: string;
   disabled?: boolean;
+  onClick?: () => void | Promise<void>;
 }
 
 export function Button({

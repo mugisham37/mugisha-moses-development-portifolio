@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/components/providers/ThemeProvider";
-import { Theme, themes, themeConfigs } from "@/lib/theme";
+import { Theme, ThemeConfig, themes, themeConfigs } from "@/lib/theme";
 import { Button } from "./Button";
 import { Card, CardContent, CardHeader, CardTitle } from "./Card";
 import ThemeSwitcher from "./ThemeSwitcher";
@@ -252,7 +252,7 @@ function ThemeCard({
   );
 }
 
-function ColorPalette({ config }: { config: any }) {
+function ColorPalette({ config }: { config: ThemeConfig }) {
   const colorEntries = Object.entries(config.colors);
 
   return (
@@ -275,7 +275,7 @@ function ColorPalette({ config }: { config: any }) {
   );
 }
 
-function AnimationSettings({ config }: { config: any }) {
+function AnimationSettings({ config }: { config: ThemeConfig }) {
   return (
     <div className="space-y-4 p-4 bg-muted/20 rounded-lg">
       <div className="grid grid-cols-2 gap-4">
@@ -304,7 +304,7 @@ function AnimationSettings({ config }: { config: any }) {
           }}
           transition={{
             duration: parseFloat(config.animations.duration.replace("s", "")),
-            ease: config.animations.easing,
+            ease: config.animations.easing as "easeInOut",
             repeat: Infinity,
           }}
         />

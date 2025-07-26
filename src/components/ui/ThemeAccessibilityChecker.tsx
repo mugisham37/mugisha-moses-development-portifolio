@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "./Card";
 import { Button } from "./Button";
-import { getContrastRatio, isAccessibleContrast } from "@/lib/theme-utils";
+import { getContrastRatio } from "@/lib/theme-utils";
 import { testSingleTheme, ThemeTestResult } from "@/lib/theme-testing";
 
 interface AccessibilityReport {
@@ -37,7 +37,7 @@ export function ThemeAccessibilityChecker({
   const [isChecking, setIsChecking] = useState(false);
   const [testResult, setTestResult] = useState<ThemeTestResult | null>(null);
 
-  const checkAccessibility = async () => {
+  const checkAccessibility = useCallback(async () => {
     setIsChecking(true);
 
     try {
@@ -118,13 +118,13 @@ export function ThemeAccessibilityChecker({
     } finally {
       setIsChecking(false);
     }
-  };
+  }, [theme, config]);
 
   useEffect(() => {
     if (autoCheck) {
       checkAccessibility();
     }
-  }, [theme, autoCheck]);
+  }, [theme, autoCheck, checkAccessibility]);
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-green-600 dark:text-green-400";
