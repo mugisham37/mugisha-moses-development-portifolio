@@ -1,0 +1,197 @@
+/**
+ * Print Utilities CSS
+ * Standardized print-related CSS properties and utilities
+ */
+
+/* CSS Custom Properties for Print */
+:root {
+  --print-font-size-base: 12pt;
+  --print-line-height-base: 1.4;
+  --print-margin-page: 2cm;
+  --print-color-black: #000000;
+  --print-color-white: #ffffff;
+  --print-color-gray: #666666;
+  --print-color-light-gray: #f0f0f0;
+  --print-border-color: #333333;
+  --print-border-light: #cccccc;
+}
+
+/* Print Color Adjustment Utility Classes */
+.print-color-exact {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.print-color-economy {
+  -webkit-print-color-adjust: economy;
+  print-color-adjust: economy;
+}
+
+/* Print Display Utilities */
+.print-only {
+  display: none !important;
+}
+
+.screen-only {
+  display: block !important;
+}
+
+@media print {
+  .print-only {
+    display: block !important;
+    visibility: visible !important;
+  }
+  
+  .screen-only {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+
+/* Print Page Break Utilities */
+.print-page-break-before {
+  page-break-before: always;
+}
+
+.print-page-break-after {
+  page-break-after: always;
+}
+
+.print-page-break-inside-avoid {
+  page-break-inside: avoid;
+}
+
+.print-page-break-inside-auto {
+  page-break-inside: auto;
+}
+
+/* Print Typography Utilities */
+@media print {
+  .print-font-serif {
+    font-family: "Times New Roman", Times, serif !important;
+  }
+  
+  .print-font-sans {
+    font-family: Arial, Helvetica, sans-serif !important;
+  }
+  
+  .print-font-mono {
+    font-family: "Courier New", Courier, monospace !important;
+  }
+  
+  .print-text-small {
+    font-size: 10pt !important;
+  }
+  
+  .print-text-base {
+    font-size: var(--print-font-size-base) !important;
+  }
+  
+  .print-text-large {
+    font-size: 14pt !important;
+  }
+  
+  .print-text-xl {
+    font-size: 16pt !important;
+  }
+  
+  .print-text-2xl {
+    font-size: 18pt !important;
+  }
+}
+
+/* Print Layout Utilities */
+@media print {
+  .print-container {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: var(--print-color-white) !important;
+  }
+  
+  .print-section {
+    margin-bottom: 1cm;
+  }
+  
+  .print-subsection {
+    margin-bottom: 0.5cm;
+  }
+  
+  .print-no-margin {
+    margin: 0 !important;
+  }
+  
+  .print-no-padding {
+    padding: 0 !important;
+  }
+}
+
+/* Print Color Utilities */
+@media print {
+  .print-bg-white {
+    background: var(--print-color-white) !important;
+  }
+  
+  .print-bg-gray {
+    background: var(--print-color-light-gray) !important;
+  }
+  
+  .print-text-black {
+    color: var(--print-color-black) !important;
+  }
+  
+  .print-text-gray {
+    color: var(--print-color-gray) !important;
+  }
+  
+  .print-border {
+    border: 1pt solid var(--print-border-color) !important;
+  }
+  
+  .print-border-light {
+    border: 1pt solid var(--print-border-light) !important;
+  }
+}
+
+/* Print Reset Utilities */
+@media print {
+  .print-reset {
+    background: var(--print-color-white) !important;
+    color: var(--print-color-black) !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+  
+  .print-reset * {
+    background: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Print Link Utilities */
+@media print {
+  .print-link-urls a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: var(--print-color-gray);
+    font-style: italic;
+  }
+  
+  .print-link-no-urls a[href]:after {
+    content: "";
+  }
+  
+  .print-link-black a {
+    color: var(--print-color-black) !important;
+    text-decoration: underline !important;
+  }
+}

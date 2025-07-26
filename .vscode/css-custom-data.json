@@ -1,0 +1,67 @@
+{
+  "version": 1.1,
+  "properties": [
+    {
+      "name": "print-color-adjust",
+      "description": "Controls how colors are handled when printing. The print-color-adjust CSS property sets what, if anything, the user agent may do to optimize the appearance of the element on the output device.",
+      "browsers": ["webkit", "firefox", "chrome", "edge"],
+      "status": "standard",
+      "syntax": "economy | exact",
+      "values": [
+        {
+          "name": "exact",
+          "description": "Colors should be printed exactly as specified in the document, even if this requires more ink or toner."
+        },
+        {
+          "name": "economy",
+          "description": "The user agent may make adjustments to the element as it deems appropriate to optimize the output for the device it is being printed to."
+        }
+      ]
+    },
+    {
+      "name": "-webkit-print-color-adjust",
+      "description": "WebKit vendor prefix for print-color-adjust. Controls how colors are handled when printing in WebKit-based browsers.",
+      "browsers": ["webkit", "chrome", "safari"],
+      "status": "nonstandard",
+      "syntax": "economy | exact",
+      "values": [
+        {
+          "name": "exact",
+          "description": "Colors should be printed exactly as specified in the document."
+        },
+        {
+          "name": "economy",
+          "description": "The browser may make adjustments to optimize printing."
+        }
+      ]
+    }
+  ],
+  "atDirectives": [
+    {
+      "name": "@page",
+      "description": "The @page CSS at-rule is used to modify different aspects of a printed page.",
+      "browsers": ["all"],
+      "status": "standard"
+    }
+  ],
+  "pseudoClasses": [
+    {
+      "name": ":first",
+      "description": "The :first pseudo-class matches the first page when printing a document.",
+      "browsers": ["all"],
+      "status": "standard"
+    },
+    {
+      "name": ":left",
+      "description": "The :left pseudo-class matches all left pages when printing a document.",
+      "browsers": ["all"],
+      "status": "standard"
+    },
+    {
+      "name": ":right",
+      "description": "The :right pseudo-class matches all right pages when printing a document.",
+      "browsers": ["all"],
+      "status": "standard"
+    }
+  ]
+}

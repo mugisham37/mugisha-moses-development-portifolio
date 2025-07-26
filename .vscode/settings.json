@@ -1,3 +1,25 @@
 {
-    "typescript.autoClosingTags": false
+    "typescript.autoClosingTags": false,
+    "css.validate": true,
+    "css.lint.unknownProperties": "ignore",
+    "css.lint.vendorPrefix": "warning",
+    "css.lint.duplicateProperties": "error",
+    "css.lint.emptyRules": "ignore",
+    "css.lint.importStatement": "ignore",
+    "css.lint.boxModel": "ignore",
+    "css.lint.universalSelector": "ignore",
+    "css.lint.zeroUnits": "warning",
+    "css.lint.fontFaceProperties": "warning",
+    "css.lint.hexColorLength": "warning",
+    "css.lint.argumentsInColorFunction": "error",
+    "css.lint.unknownVendorSpecificProperties": "ignore",
+    "css.lint.ieHack": "warning",
+    "css.lint.validProperties": [
+        "print-color-adjust",
+        "-webkit-print-color-adjust"
+    ],
+    "css.customData": [".vscode/css-custom-data.json"],
+    "stylelint.enable": true,
+    "stylelint.validate": ["css", "scss", "sass"],
+    "stylelint.configFile": "./stylelint.config.js"
 }

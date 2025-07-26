@@ -1,10 +1,10 @@
 /* Print-friendly styles for blog posts */
+@import './print-utilities.css';
 
 @media print {
   /* Reset and base styles */
   * {
     -webkit-print-color-adjust: exact !important;
-    color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
@@ -752,6 +752,7 @@
   /* Fix for webkit print issues */
   * {
     -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   /* Ensure text is readable */
