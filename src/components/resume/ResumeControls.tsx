@@ -54,7 +54,7 @@ export function ResumeControls({
     },
   ];
 
-  const viewOptions: { value: ResumeView; label: string; icon: any }[] = [
+  const viewOptions: { value: ResumeView; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { value: "interactive", label: "Interactive", icon: ComputerDesktopIcon },
     { value: "print", label: "Print Preview", icon: PrinterIcon },
     {

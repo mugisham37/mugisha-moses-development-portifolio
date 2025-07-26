@@ -4,7 +4,7 @@ import { RefObject, useCallback } from "react";
 import { ResumeFormat } from "./ResumeContainer";
 
 interface ResumePDFGeneratorProps {
-  resumeRef: RefObject<HTMLDivElement>;
+  resumeRef: RefObject<HTMLDivElement | null>;
   format: ResumeFormat;
   isGenerating: boolean;
 }

@@ -163,7 +163,7 @@ export function ResumeContent({ format, view }: ResumeContentProps) {
 
         {format === "minimal" && (
           <div className="max-w-4xl mx-auto space-y-12">
-            {sections.map((section, index) => {
+            {sections.map((section) => {
               const SectionComponent = section.component;
               return (
                 <motion.div key={section.key} variants={sectionVariants}>
@@ -176,7 +176,7 @@ export function ResumeContent({ format, view }: ResumeContentProps) {
 
         {format === "standard" && (
           <div className="space-y-12">
-            {sections.map((section, index) => {
+            {sections.map((section) => {
               const SectionComponent = section.component;
               return (
                 <motion.div key={section.key} variants={sectionVariants}>

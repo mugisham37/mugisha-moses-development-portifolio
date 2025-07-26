@@ -15,7 +15,7 @@ interface ProjectsSectionProps {
   view: ResumeView;
 }
 
-export function ProjectsSection({ format, view }: ProjectsSectionProps) {
+export function ProjectsSection({ format }: ProjectsSectionProps) {
   // Get featured projects for resume
   const featuredProjects = projects
     .filter((project) => project.featured)
@@ -65,10 +65,10 @@ export function ProjectsSection({ format, view }: ProjectsSectionProps) {
             <div className="flex flex-wrap gap-1">
               {project.technologies.slice(0, 4).map((tech) => (
                 <span
-                  key={tech}
+                  key={tech.name}
                   className="px-2 py-0.5 text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded"
                 >
-                  {tech}
+                  {tech.name}
                 </span>
               ))}
             </div>
@@ -141,10 +141,10 @@ export function ProjectsSection({ format, view }: ProjectsSectionProps) {
             <div className="flex flex-wrap gap-1">
               {project.technologies.slice(0, 5).map((tech) => (
                 <span
-                  key={tech}
+                  key={tech.name}
                   className="px-2 py-1 text-xs bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-800 dark:text-blue-200 rounded-full"
                 >
-                  {tech}
+                  {tech.name}
                 </span>
               ))}
             </div>
@@ -232,7 +232,7 @@ export function ProjectsSection({ format, view }: ProjectsSectionProps) {
               <ul className="list-disc list-inside space-y-1 text-sm text-slate-600 dark:text-slate-400">
                 {project.keyFeatures
                   .slice(0, 3)
-                  .map((feature, featureIndex) => (
+                  .map((feature: string, featureIndex: number) => (
                     <li key={featureIndex}>{feature}</li>
                   ))}
               </ul>
@@ -287,10 +287,10 @@ export function ProjectsSection({ format, view }: ProjectsSectionProps) {
             <div className="flex flex-wrap gap-2">
               {project.technologies.map((tech) => (
                 <span
-                  key={tech}
+                  key={tech.name}
                   className="px-2 py-1 text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-full"
                 >
-                  {tech}
+                  {tech.name}
                 </span>
               ))}
             </div>

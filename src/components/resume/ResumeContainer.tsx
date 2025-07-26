@@ -48,7 +48,8 @@ export function ResumeContainer() {
       await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate generation
       trackEvent("resume_pdf_generation_completed", { format: state.format });
     } catch (error) {
-      trackEvent("resume_pdf_generation_failed", { error: error.message });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      trackEvent("resume_pdf_generation_failed", { error: errorMessage });
     } finally {
       setState((prev) => ({ ...prev, isGeneratingPDF: false }));
     }

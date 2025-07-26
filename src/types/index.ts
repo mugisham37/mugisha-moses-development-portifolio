@@ -9,6 +9,7 @@ export interface Project {
   title: string;
   description: string;
   longDescription?: string;
+  keyFeatures?: string[];
   technologies: Technology[];
   images: ImageAsset[];
   liveUrl?: string;

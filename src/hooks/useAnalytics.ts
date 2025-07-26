@@ -12,6 +12,12 @@ export type AnalyticsEvent =
   | "contact_form_submit"
   | "contact_form_complete"
   | "resume_download"
+  | "resume_format_changed"
+  | "resume_view_changed"
+  | "resume_pdf_generation_started"
+  | "resume_pdf_generation_completed"
+  | "resume_pdf_generation_failed"
+  | "resume_analytics_toggled"
   | "theme_change"
   | "skill_hover"
   | "blog_post_view"
@@ -351,6 +357,7 @@ export function useAnalytics() {
 
   return {
     track,
+    trackEvent: track, // Alias for backwards compatibility
     trackPageView,
     trackScrollDepth,
     trackTimeOnPage,
