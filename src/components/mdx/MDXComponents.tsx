@@ -20,6 +20,82 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
+// Separate CodeBlock component to fix React Hook violation
+const CodeBlock = ({ children }: { children: ReactNode }) => {
+  const [copied, setCopied] = useState(false);
+
+  // Extract code content and language with proper typing
+  const codeElement = children as React.ReactElement & {
+    props?: {
+      children?: string;
+      className?: string;
+    };
+  };
+  const code = codeElement?.props?.children || "";
+  const language =
+    codeElement?.props?.className?.replace("language-", "") || "text";
+
+  const copyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy code:", err);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      viewport={{ once: true }}
+      className="relative my-6 group"
+    >
+      {/* Language badge and copy button */}
+      <div className="flex items-center justify-between mb-2">
+        <Badge variant="secondary" className="text-xs">
+          {language}
+        </Badge>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={copyCode}
+          className="opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          {copied ? (
+            <>
+              <Check className="w-4 h-4 mr-1" />
+              Copied!
+            </>
+          ) : (
+            <>
+              <Copy className="w-4 h-4 mr-1" />
+              Copy
+            </>
+          )}
+        </Button>
+      </div>
+
+      <SyntaxHighlighter
+        language={language}
+        style={oneDark}
+        customStyle={{
+          margin: 0,
+          borderRadius: "0.5rem",
+          fontSize: "0.875rem",
+          lineHeight: "1.5",
+        }}
+        showLineNumbers
+        wrapLines
+      >
+        {code}
+      </SyntaxHighlighter>
+    </motion.div>
+  );
+};
+
 // Custom components for MDX
 export const MDXComponents = {
   // Headings with auto-generated IDs
@@ -119,82 +195,15 @@ export const MDXComponents = {
     </motion.div>
   ),
 
-  // Enhanced code blocks
-  pre: ({ children, ...props }: { children: ReactNode }) => {
-    const [copied, setCopied] = useState(false);
-
-    // Extract code content and language
-    const codeElement = children as any;
-    const code = codeElement?.props?.children || "";
-    const language =
-      codeElement?.props?.className?.replace("language-", "") || "text";
-
-    const copyCode = async () => {
-      try {
-        await navigator.clipboard.writeText(code);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch (err) {
-        console.error("Failed to copy code:", err);
-      }
-    };
-
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        viewport={{ once: true }}
-        className="relative my-6 group"
-      >
-        {/* Language badge and copy button */}
-        <div className="flex items-center justify-between mb-2">
-          <Badge variant="secondary" className="text-xs">
-            {language}
-          </Badge>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={copyCode}
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            {copied ? (
-              <>
-                <Check className="w-4 h-4 mr-1" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4 mr-1" />
-                Copy
-              </>
-            )}
-          </Button>
-        </div>
-
-        <SyntaxHighlighter
-          language={language}
-          style={oneDark}
-          customStyle={{
-            margin: 0,
-            borderRadius: "0.5rem",
-            fontSize: "0.875rem",
-            lineHeight: "1.5",
-          }}
-          showLineNumbers
-          wrapLines
-        >
-          {code}
-        </SyntaxHighlighter>
-      </motion.div>
-    );
+  // Enhanced code blocks - Fixed React Hook violation
+  pre: ({ children }: { children: ReactNode }) => {
+    return <CodeBlock>{children}</CodeBlock>;
   },
 
   // Inline code
-  code: ({ children, ...props }: { children: ReactNode }) => (
+  code: ({ children }: { children: ReactNode }) => (
     <code
       className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono"
-      {...props}
     >
       {children}
     </code>
@@ -229,16 +238,17 @@ export const MDXComponents = {
 
   // Enhanced blockquotes
   blockquote: ({ children, ...props }: { children: ReactNode }) => (
-    <motion.blockquote
+    <motion.div
       initial={{ opacity: 0, x: -20 }}
       whileInView={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
       className="border-l-4 border-primary pl-6 py-2 my-6 bg-muted/50 rounded-r-lg italic"
+      role="blockquote"
       {...props}
     >
       {children}
-    </motion.blockquote>
+    </motion.div>
   ),
 
   // Tables
@@ -414,3 +424,10 @@ export const MDXComponents = {
     </motion.div>
   ),
 };
+
+// Export aliases for backward compatibility
+export const mdxComponents = MDXComponents;
+export const CustomComponents = MDXComponents;
+
+// Default export
+export default MDXComponents;

@@ -47,6 +47,9 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
 
       return () => observer.disconnect();
     }
+    
+    // Return undefined when no cleanup is needed
+    return undefined;
   }, [pathname, searchParams, trackPageView]);
 
   return (

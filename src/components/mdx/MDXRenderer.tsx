@@ -1,7 +1,7 @@
 import React from "react";
 import { MDXRemote } from "next-mdx-remote";
 import type { MDXRemoteSerializeResult } from "next-mdx-remote";
-import { mdxComponents } from "./MDXComponents";
+import { MDXComponents } from "./MDXComponents";
 import { motion } from "framer-motion";
 
 interface MDXRendererProps {
@@ -20,7 +20,7 @@ export const MDXRenderer: React.FC<MDXRendererProps> = ({
       transition={{ duration: 0.6 }}
       className={`prose prose-lg dark:prose-invert max-w-none ${className}`}
     >
-      <MDXRemote {...source} components={mdxComponents} />
+      <MDXRemote {...source} components={MDXComponents} />
     </motion.div>
   );
 };

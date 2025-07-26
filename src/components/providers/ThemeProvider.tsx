@@ -10,14 +10,10 @@ import React, {
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
   Theme,
-  ThemeConfig,
   ThemeContextType,
   themeConfigs,
   applyTheme,
-  getStoredTheme,
   getNextTheme,
-  detectSystemTheme,
-  watchSystemTheme,
 } from "@/lib/theme";
 import { ThemePersistence, ThemeHydration } from "@/lib/theme-persistence";
 
@@ -28,9 +24,6 @@ interface ThemeProviderProps {
   children: React.ReactNode;
   defaultTheme?: Theme;
   enableSystem?: boolean;
-  attribute?: string;
-  value?: Partial<Record<Theme, string>>;
-  storageKey?: string;
   enableTransitions?: boolean;
   transitionDuration?: number;
 }
@@ -39,8 +32,6 @@ export function ThemeProvider({
   children,
   defaultTheme = "light",
   enableSystem = true,
-  attribute = "class",
-  storageKey = "portfolio-theme",
   enableTransitions = true,
   transitionDuration = 300,
 }: ThemeProviderProps) {
@@ -73,7 +64,9 @@ export function ThemeProvider({
     const unwatch = persistence.watchSystemTheme((systemTheme) => {
       // Only auto-switch if user hasn't set manual preference
       if (!persistence.hasManualPreference()) {
-        setTheme(systemTheme === "dark" ? "dark" : "light");
+        const newTheme = systemTheme === "dark" ? "dark" : "light";
+        setThemeState(newTheme);
+        applyTheme(newTheme);
       }
     });
 
@@ -277,7 +270,7 @@ export function ThemeTransition({
         exit="exit"
         transition={{
           duration: parseFloat(config.animations.duration.replace("s", "")),
-          ease: config.animations.easing,
+          ease: "easeInOut" as const,
           delay,
         }}
         className={`${className} ${
@@ -337,7 +330,7 @@ export function ThemeMotion({
     },
   };
 
-  const containerVariants = stagger
+  const containerVariants: Variants = stagger
     ? {
         animate: {
           transition: {
@@ -345,7 +338,9 @@ export function ThemeMotion({
           },
         },
       }
-    : {};
+    : {
+        animate: {},
+      };
 
   return (
     <motion.div
@@ -354,7 +349,7 @@ export function ThemeMotion({
       animate="animate"
       transition={{
         duration: parseFloat(config.animations.duration.replace("s", "")),
-        ease: config.animations.easing,
+        ease: "easeInOut" as const,
         delay,
       }}
       className={className}

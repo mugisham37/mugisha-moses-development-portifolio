@@ -1,4 +1,4 @@
 // MDX Components Barrel Export
 export { default as MDXRenderer } from "./MDXRenderer";
-export { mdxComponents, CustomComponents } from "./MDXComponents";
-export type { MDXComponents } from "mdx/types";
+export { MDXComponents, mdxComponents, CustomComponents } from "./MDXComponents";
+export type { MDXComponents as MDXComponentsType } from "mdx/types";
