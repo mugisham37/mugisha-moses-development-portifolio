@@ -8,7 +8,6 @@ import { liveAnnouncer, FocusManager } from "@/lib/accessibility";
  * Provides utilities for ARIA announcements, focus management, and keyboard navigation
  */
 export function useAccessibility() {
-  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   // Announce messages to screen readers
   const announce = useCallback(
@@ -48,7 +47,7 @@ export function useAccessibility() {
     ) as NodeListOf<HTMLElement>;
 
     if (focusableElements.length > 0) {
-      focusableElements[0].focus();
+      focusableElements[0]?.focus();
     }
   }, []);
 
@@ -59,7 +58,7 @@ export function useAccessibility() {
     ) as NodeListOf<HTMLElement>;
 
     if (focusableElements.length > 0) {
-      focusableElements[focusableElements.length - 1].focus();
+      focusableElements[focusableElements.length - 1]?.focus();
     }
   }, []);
 

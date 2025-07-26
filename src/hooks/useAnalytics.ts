@@ -26,49 +26,64 @@ export type AnalyticsEvent =
   | "calendar_booking_start"
   | "calendar_booking_complete"
   | "live_chat_start"
-  | "voice_message_play";
+  | "voice_message_play"
+  | "heatmap_batch"
+  | "funnel_progression"
+  | "session_start";
 
 export interface AnalyticsProperties {
   // Page tracking
-  page?: string;
-  referrer?: string;
-  user_agent?: string;
+  page?: string | undefined;
+  referrer?: string | undefined;
+  user_agent?: string | undefined;
 
   // Project interactions
-  project_id?: string;
-  project_title?: string;
-  project_category?: string;
-  technology?: string;
+  project_id?: string | undefined;
+  project_title?: string | undefined;
+  project_category?: string | undefined;
+  technology?: string | undefined;
 
   // Contact form funnel
-  form_step?: number;
-  form_field?: string;
-  form_error?: string;
-  inquiry_type?: string;
+  form_step?: number | undefined;
+  form_field?: string | undefined;
+  form_error?: string | undefined;
+  inquiry_type?: string | undefined;
 
   // Engagement metrics
-  scroll_percentage?: number;
-  time_spent?: number;
-  interaction_type?: string;
-  element_id?: string;
+  scroll_percentage?: number | undefined;
+  time_spent?: number | undefined;
+  interaction_type?: string | undefined;
+  element_id?: string | undefined;
 
   // Content interactions
-  blog_post_id?: string;
-  blog_category?: string;
-  reading_progress?: number;
+  blog_post_id?: string | undefined;
+  blog_category?: string | undefined;
+  reading_progress?: number | undefined;
 
   // UI interactions
-  theme?: string;
-  skill_category?: string;
-  search_term?: string;
-  filter_type?: string;
+  theme?: string | undefined;
+  skill_category?: string | undefined;
+  search_term?: string | undefined;
+  filter_type?: string | undefined;
 
   // Performance metrics
-  load_time?: number;
-  interaction_delay?: number;
+  load_time?: number | undefined;
+  interaction_delay?: number | undefined;
 
-  // Custom properties
-  [key: string]: any;
+  // Funnel and session data
+  from_stage?: string | undefined;
+  to_stage?: string | undefined;
+  session_duration?: number | undefined;
+  session_id?: string | undefined;
+  screen_resolution?: string | undefined;
+  viewport_size?: string | undefined;
+  interactions?: number | undefined;
+  engagement_level?: string | undefined;
+  timestamp?: number | undefined;
+  results_count?: number | undefined;
+
+  // Custom properties - using specific types instead of any
+  [key: string]: string | number | boolean | undefined;
 }
 
 // Engagement heatmap data structure
@@ -76,7 +91,7 @@ export interface HeatmapData {
   x: number;
   y: number;
   intensity: number;
-  element?: string;
+  element?: string | undefined;
   timestamp: number;
 }
 
@@ -101,42 +116,18 @@ export function useAnalytics() {
   const track = useCallback(
     (event: AnalyticsEvent, properties?: AnalyticsProperties) => {
       try {
-        // Send to Vercel Analytics
-        vercelTrack(event, properties);
+        // Filter out undefined values for Vercel Analytics
+        const cleanProperties = properties
+          ? Object.fromEntries(
+              Object.entries(properties).filter(([, value]) => value !== undefined)
+            )
+          : undefined;
 
-        // Store locally for heatmap and funnel analysis
-        if (typeof window !== "undefined") {
-          const analyticsData = {
-            event,
-            properties,
-            timestamp: Date.now(),
-            sessionId:
-              sessionStorage.getItem("analytics_session_id") ||
-              generateSessionId(),
-            url: window.location.href,
-            userAgent: navigator.userAgent,
-          };
-
-          // Store in localStorage for dashboard
-          const existingData = JSON.parse(
-            localStorage.getItem("portfolio_analytics") || "[]"
-          );
-          existingData.push(analyticsData);
-
-          // Keep only last 1000 events to prevent storage overflow
-          if (existingData.length > 1000) {
-            existingData.splice(0, existingData.length - 1000);
-          }
-
-          localStorage.setItem(
-            "portfolio_analytics",
-            JSON.stringify(existingData)
-          );
-        }
-
-        // Development logging
+        vercelTrack(event, cleanProperties as Record<string, string | number | boolean>);
+        
+        // Log for development
         if (process.env.NODE_ENV === "development") {
-          console.log("📊 Analytics Event:", event, properties);
+          console.log("Analytics Event:", event, cleanProperties);
         }
       } catch (error) {
         console.error("Analytics tracking error:", error);
@@ -145,21 +136,18 @@ export function useAnalytics() {
     []
   );
 
-  // Track page views with enhanced metadata
+  // Track page views
   const trackPageView = useCallback(
-    (path: string, additionalProperties?: AnalyticsProperties) => {
+    (page: string, properties?: AnalyticsProperties) => {
       pageStartTime.current = Date.now();
-      scrollDepthTracked.current.clear();
 
-      const properties: AnalyticsProperties = {
-        page: path,
-        referrer: document.referrer,
-        user_agent: navigator.userAgent,
-        session_duration: Date.now() - sessionStartTime.current,
-        ...additionalProperties,
-      };
-
-      track("page_view", properties);
+      track("page_view", {
+        page,
+        referrer: typeof document !== "undefined" ? document.referrer : undefined,
+        user_agent: typeof navigator !== "undefined" ? navigator.userAgent : undefined,
+        timestamp: Date.now(),
+        ...properties,
+      });
     },
     [track]
   );
@@ -167,16 +155,48 @@ export function useAnalytics() {
   // Track scroll depth milestones
   const trackScrollDepth = useCallback(
     (percentage: number) => {
-      const milestone = Math.floor(percentage / 25) * 25; // Track at 0%, 25%, 50%, 75%, 100%
+      const milestone = Math.floor(percentage / 25) * 25; // 0, 25, 50, 75, 100
 
-      if (!scrollDepthTracked.current.has(milestone) && milestone > 0) {
+      if (milestone > 0 && !scrollDepthTracked.current.has(milestone)) {
         scrollDepthTracked.current.add(milestone);
+
         track("scroll_depth", {
           scroll_percentage: milestone,
-          page: window.location.pathname,
-          time_to_scroll: Date.now() - pageStartTime.current,
+          page: typeof window !== "undefined" ? window.location.pathname : undefined,
+          timestamp: Date.now(),
         });
       }
+    },
+    [track]
+  );
+
+  // Track contact form interactions
+  const trackContactForm = useCallback(
+    (
+      action: "start" | "submit" | "complete",
+      step?: number,
+      properties?: AnalyticsProperties
+    ) => {
+      const eventName = `contact_form_${action}` as AnalyticsEvent;
+      
+      track(eventName, {
+        form_step: step,
+        timestamp: Date.now(),
+        ...properties,
+      });
+    },
+    [track]
+  );
+
+  // Track search interactions
+  const trackSearch = useCallback(
+    (query: string, results: number, filters?: Record<string, string | number | boolean>) => {
+      track("search_query", {
+        search_term: query,
+        results_count: results,
+        timestamp: Date.now(),
+        ...filters,
+      });
     },
     [track]
   );
@@ -189,7 +209,7 @@ export function useAnalytics() {
       // Only track if more than 10 seconds
       track("time_on_page", {
         time_spent: timeSpent,
-        page: window.location.pathname,
+        page: typeof window !== "undefined" ? window.location.pathname : undefined,
         engagement_level:
           timeSpent > 60000 ? "high" : timeSpent > 30000 ? "medium" : "low",
       });
@@ -203,7 +223,7 @@ export function useAnalytics() {
         x: (x / window.innerWidth) * 100, // Convert to percentage
         y: (y / window.innerHeight) * 100,
         intensity: 1,
-        element,
+        element: element || undefined,
         timestamp: Date.now(),
       };
 
@@ -213,7 +233,7 @@ export function useAnalytics() {
       if (heatmapData.current.length >= 50) {
         track("heatmap_batch", {
           interactions: heatmapData.current.length,
-          page: window.location.pathname,
+          page: typeof window !== "undefined" ? window.location.pathname : undefined,
         });
         heatmapData.current = [];
       }
@@ -250,58 +270,20 @@ export function useAnalytics() {
         timestamp: Date.now(),
         ...additionalProperties,
       });
-
-      if (action === "view") {
-        trackFunnelStage("project_detail", { project_id: projectId });
-      }
-    },
-    [track, trackFunnelStage]
-  );
-
-  // Track contact form funnel
-  const trackContactForm = useCallback(
-    (
-      stage: "start" | "submit" | "complete" | "error",
-      properties?: AnalyticsProperties
-    ) => {
-      track(`contact_form_${stage}` as AnalyticsEvent, properties);
-
-      if (stage === "start") {
-        trackFunnelStage("contact_form");
-      } else if (stage === "complete") {
-        trackFunnelStage("conversion", { conversion_type: "contact_form" });
-      }
-    },
-    [track, trackFunnelStage]
-  );
-
-  // Track search and filtering
-  const trackSearch = useCallback(
-    (query: string, results: number, filters?: Record<string, any>) => {
-      track("search_query", {
-        search_term: query,
-        results_count: results,
-        filters_applied: filters ? Object.keys(filters).length : 0,
-        ...filters,
-      });
     },
     [track]
   );
 
   // Get analytics dashboard data
   const getAnalyticsDashboard = useCallback(() => {
-    if (typeof window === "undefined") return null;
-
-    const data = JSON.parse(
-      localStorage.getItem("portfolio_analytics") || "[]"
-    );
-    const heatmap = heatmapData.current;
-
+    const sessionDuration = Date.now() - sessionStartTime.current;
+    const heatmap = [...heatmapData.current];
+    
     return {
-      events: data,
-      heatmap,
-      sessionDuration: Date.now() - sessionStartTime.current,
+      sessionDuration,
       currentFunnelStage: funnelStage.current,
+      heatmapDataPoints: heatmap.length,
+      scrollDepthMilestones: Array.from(scrollDepthTracked.current),
     };
   }, []);
 
@@ -363,6 +345,8 @@ export function useAnalytics() {
         window.removeEventListener("beforeunload", handleBeforeUnload);
       };
     }
+    // Return undefined for server-side rendering
+    return undefined;
   }, [track, trackScrollDepth, trackTimeOnPage, trackHeatmapInteraction]);
 
   return {

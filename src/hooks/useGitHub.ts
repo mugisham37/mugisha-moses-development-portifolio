@@ -27,7 +27,7 @@ interface UseGitHubReturn {
   error: string | null;
   refetch: () => Promise<void>;
   clearCache: () => void;
-  rateLimitStatus: any;
+  rateLimitStatus: Record<string, unknown> | null;
 }
 
 export function useGitHub(options: UseGitHubOptions = {}): UseGitHubReturn {
@@ -43,7 +43,7 @@ export function useGitHub(options: UseGitHubOptions = {}): UseGitHubReturn {
   const [activity, setActivity] = useState<ActivityData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [rateLimitStatus, setRateLimitStatus] = useState<any>(null);
+  const [rateLimitStatus, setRateLimitStatus] = useState<Record<string, unknown> | null>(null);
 
   const fetchGitHubData = useCallback(async () => {
     if (loading) return;
@@ -108,6 +108,10 @@ export function useGitHub(options: UseGitHubOptions = {}): UseGitHubReturn {
 
       return () => clearInterval(interval);
     }
+    
+    return () => {
+      // Cleanup function for all code paths
+    };
   }, [refreshInterval, fetchGitHubData]);
 
   return {

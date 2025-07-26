@@ -47,23 +47,23 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig = {}) {
     };
   }, [config]);
 
-  const focusFirst = useCallback(() => {
+  const focusFirst = useCallback((): void => {
     managerRef.current?.focusFirst();
   }, []);
 
-  const focusLast = useCallback(() => {
+  const focusLast = useCallback((): void => {
     managerRef.current?.focusLast();
   }, []);
 
-  const focusNext = useCallback(() => {
+  const focusNext = useCallback((): void => {
     managerRef.current?.focusNext();
   }, []);
 
-  const focusPrevious = useCallback(() => {
+  const focusPrevious = useCallback((): void => {
     managerRef.current?.focusPrevious();
   }, []);
 
-  const refresh = useCallback(() => {
+  const refresh = useCallback((): void => {
     managerRef.current?.refresh();
   }, []);
 
@@ -95,7 +95,7 @@ export function useKeyboardShortcuts() {
   }, []);
 
   const addShortcut = useCallback(
-    (keyCombo: string, handler: () => void, description?: string) => {
+    (keyCombo: string, handler: () => void, description?: string): void => {
       managerRef.current?.addShortcut(keyCombo, handler);
 
       // Announce shortcut addition for screen readers
@@ -109,15 +109,15 @@ export function useKeyboardShortcuts() {
     []
   );
 
-  const removeShortcut = useCallback((keyCombo: string) => {
+  const removeShortcut = useCallback((keyCombo: string): void => {
     managerRef.current?.removeShortcut(keyCombo);
   }, []);
 
-  const enable = useCallback(() => {
+  const enable = useCallback((): void => {
     managerRef.current?.enable();
   }, []);
 
-  const disable = useCallback(() => {
+  const disable = useCallback((): void => {
     managerRef.current?.disable();
   }, []);
 
@@ -161,17 +161,24 @@ export function useModalKeyboardNavigation(isOpen: boolean) {
         modalRef.current?.dispatchEvent(closeEvent);
       };
 
-      modalRef.current.addEventListener("keyboardEscape", handleEscape);
+      const currentModalRef = modalRef.current;
+      currentModalRef.addEventListener("keyboardEscape", handleEscape);
 
       return () => {
-        modalRef.current?.removeEventListener("keyboardEscape", handleEscape);
+        currentModalRef?.removeEventListener("keyboardEscape", handleEscape);
         managerRef.current?.destroy();
       };
-    } else if (!isOpen && previousFocusRef.current) {
+    }
+
+    if (!isOpen && previousFocusRef.current) {
       // Restore focus when modal closes
       previousFocusRef.current.focus();
       previousFocusRef.current = null;
     }
+
+    return () => {
+      // Cleanup function for all code paths
+    };
   }, [isOpen]);
 
   return { modalRef };
@@ -200,10 +207,9 @@ export function useMenuKeyboardNavigation(isOpen: boolean) {
       // Focus first menu item
       setTimeout(() => {
         managerRef.current?.focusFirst();
-        setSelectedIndex(0);
       }, 100);
 
-      // Listen for selection changes
+      // Listen for focus changes
       const handleFocusChange = () => {
         if (managerRef.current) {
           setSelectedIndex(managerRef.current.currentFocusIndex);
@@ -215,37 +221,40 @@ export function useMenuKeyboardNavigation(isOpen: boolean) {
         // Close menu and return focus to trigger
         const closeEvent = new CustomEvent("menuClose", { bubbles: true });
         menuRef.current?.dispatchEvent(closeEvent);
-
         setTimeout(() => {
           triggerRef.current?.focus();
         }, 100);
       };
 
-      const menu = menuRef.current;
-      menu.addEventListener("focusin", handleFocusChange);
-      menu.addEventListener("keyboardEscape", handleEscape);
+      const currentMenuRef = menuRef.current;
+      currentMenuRef.addEventListener("focusin", handleFocusChange);
+      currentMenuRef.addEventListener("keyboardEscape", handleEscape);
 
       return () => {
-        menu.removeEventListener("focusin", handleFocusChange);
-        menu.removeEventListener("keyboardEscape", handleEscape);
+        currentMenuRef?.removeEventListener("focusin", handleFocusChange);
+        currentMenuRef?.removeEventListener("keyboardEscape", handleEscape);
         managerRef.current?.destroy();
       };
     }
+
+    return () => {
+      // Cleanup function for all code paths
+    };
   }, [isOpen]);
 
-  const selectNext = useCallback(() => {
+  const selectNext = useCallback((): void => {
     managerRef.current?.focusNext();
   }, []);
 
-  const selectPrevious = useCallback(() => {
+  const selectPrevious = useCallback((): void => {
     managerRef.current?.focusPrevious();
   }, []);
 
-  const selectFirst = useCallback(() => {
+  const selectFirst = useCallback((): void => {
     managerRef.current?.focusFirst();
   }, []);
 
-  const selectLast = useCallback(() => {
+  const selectLast = useCallback((): void => {
     managerRef.current?.focusLast();
   }, []);
 
@@ -261,12 +270,86 @@ export function useMenuKeyboardNavigation(isOpen: boolean) {
 }
 
 /**
- * Hook for managing tab navigation
+ * Hook for managing dropdown keyboard navigation
  */
-export function useTabNavigation(tabs: string[], defaultTab: string = "") {
+export function useDropdownKeyboardNavigation() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const dropdownRef = useRef<HTMLElement>(null);
+  const triggerRef = useRef<HTMLElement>(null);
+  const managerRef = useRef<KeyboardNavigationManager | null>(null);
+
+  useEffect(() => {
+    if (isOpen && dropdownRef.current) {
+      managerRef.current = createKeyboardNavigationManager(
+        dropdownRef.current,
+        {
+          enableArrowKeys: true,
+          enableEnterActivation: true,
+          enableEscapeClose: true,
+          orientation: "vertical",
+          useRovingTabindex: true,
+        }
+      );
+
+      // Listen for focus changes
+      const handleFocusChange = () => {
+        if (managerRef.current) {
+          setSelectedIndex(managerRef.current.currentFocusIndex);
+        }
+      };
+
+      const currentDropdownRef = dropdownRef.current;
+      currentDropdownRef.addEventListener("focusin", handleFocusChange);
+
+      return () => {
+        currentDropdownRef?.removeEventListener("focusin", handleFocusChange);
+        managerRef.current?.destroy();
+      };
+    }
+
+    return () => {
+      // Cleanup function for all code paths
+    };
+  }, [isOpen]);
+
+  const open = useCallback((): void => {
+    setIsOpen(true);
+    setSelectedIndex(0);
+  }, []);
+
+  const close = useCallback((): void => {
+    setIsOpen(false);
+    setSelectedIndex(-1);
+    triggerRef.current?.focus();
+  }, []);
+
+  const toggle = useCallback((): void => {
+    if (isOpen) {
+      close();
+    } else {
+      open();
+    }
+  }, [isOpen, close, open]);
+
+  return {
+    isOpen,
+    selectedIndex,
+    dropdownRef,
+    triggerRef,
+    open,
+    close,
+    toggle,
+  };
+}
+
+/**
+ * Hook for managing tab keyboard navigation
+ */
+export function useTabKeyboardNavigation(tabs: Array<{ id: string; label: string }>) {
+  const [activeTab, setActiveTab] = useState(tabs[0]?.id || "");
+  const [focusedTab, setFocusedTab] = useState(tabs[0]?.id || "");
   const tabListRef = useRef<HTMLElement>(null);
-  const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]);
-  const [focusedTab, setFocusedTab] = useState(defaultTab || tabs[0]);
   const managerRef = useRef<KeyboardNavigationManager | null>(null);
 
   useEffect(() => {
@@ -285,12 +368,11 @@ export function useTabNavigation(tabs: string[], defaultTab: string = "") {
         const tabId = target.getAttribute("data-tab-id");
         if (tabId) {
           setActiveTab(tabId);
-          liveAnnouncer?.announce(`${tabId} tab selected`, "polite");
         }
       };
 
       // Handle focus changes
-      const handleFocusChange = (event: FocusEvent) => {
+      const handleFocusChange = (event: Event) => {
         const target = event.target as HTMLElement;
         const tabId = target.getAttribute("data-tab-id");
         if (tabId) {
@@ -308,9 +390,13 @@ export function useTabNavigation(tabs: string[], defaultTab: string = "") {
         managerRef.current?.destroy();
       };
     }
+
+    return () => {
+      // Cleanup function for all code paths
+    };
   }, [tabs]);
 
-  const selectTab = useCallback((tabId: string) => {
+  const selectTab = useCallback((tabId: string): void => {
     setActiveTab(tabId);
     setFocusedTab(tabId);
 
@@ -321,17 +407,22 @@ export function useTabNavigation(tabs: string[], defaultTab: string = "") {
     tabButton?.focus();
   }, []);
 
-  const selectNextTab = useCallback(() => {
-    const currentIndex = tabs.indexOf(activeTab);
+  const selectNextTab = useCallback((): void => {
+    const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
     const nextIndex = (currentIndex + 1) % tabs.length;
-    selectTab(tabs[nextIndex]);
+    const nextTab = tabs[nextIndex];
+    if (nextTab) {
+      selectTab(nextTab.id);
+    }
   }, [tabs, activeTab, selectTab]);
 
-  const selectPreviousTab = useCallback(() => {
-    const currentIndex = tabs.indexOf(activeTab);
-    const previousIndex =
-      currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
-    selectTab(tabs[previousIndex]);
+  const selectPreviousTab = useCallback((): void => {
+    const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
+    const previousIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
+    const previousTab = tabs[previousIndex];
+    if (previousTab) {
+      selectTab(previousTab.id);
+    }
   }, [tabs, activeTab, selectTab]);
 
   return {
@@ -345,104 +436,67 @@ export function useTabNavigation(tabs: string[], defaultTab: string = "") {
 }
 
 /**
- * Hook for managing carousel/slider keyboard navigation
+ * Hook for managing breadcrumb keyboard navigation
  */
-export function useCarouselKeyboardNavigation(
-  itemCount: number,
-  currentIndex: number = 0
+export function useBreadcrumbKeyboardNavigation(
+  breadcrumbs: Array<{ id: string; label: string; href?: string }>
 ) {
-  const carouselRef = useRef<HTMLElement>(null);
-  const [focusedIndex, setFocusedIndex] = useState(currentIndex);
-
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      switch (event.key) {
-        case "ArrowLeft":
-        case "ArrowUp":
-          event.preventDefault();
-          const prevIndex =
-            focusedIndex === 0 ? itemCount - 1 : focusedIndex - 1;
-          setFocusedIndex(prevIndex);
-          liveAnnouncer?.announce(
-            `Item ${prevIndex + 1} of ${itemCount}`,
-            "polite"
-          );
-          break;
-
-        case "ArrowRight":
-        case "ArrowDown":
-          event.preventDefault();
-          const nextIndex = (focusedIndex + 1) % itemCount;
-          setFocusedIndex(nextIndex);
-          liveAnnouncer?.announce(
-            `Item ${nextIndex + 1} of ${itemCount}`,
-            "polite"
-          );
-          break;
-
-        case "Home":
-          event.preventDefault();
-          setFocusedIndex(0);
-          liveAnnouncer?.announce(`First item, 1 of ${itemCount}`, "polite");
-          break;
-
-        case "End":
-          event.preventDefault();
-          setFocusedIndex(itemCount - 1);
-          liveAnnouncer?.announce(
-            `Last item, ${itemCount} of ${itemCount}`,
-            "polite"
-          );
-          break;
-
-        case "Enter":
-        case " ":
-          event.preventDefault();
-          // Emit selection event
-          const selectEvent = new CustomEvent("carouselSelect", {
-            detail: { index: focusedIndex },
-            bubbles: true,
-          });
-          carouselRef.current?.dispatchEvent(selectEvent);
-          break;
-      }
-    },
-    [focusedIndex, itemCount]
-  );
+  const breadcrumbRef = useRef<HTMLElement>(null);
+  const managerRef = useRef<KeyboardNavigationManager | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(-1);
 
   useEffect(() => {
-    const carousel = carouselRef.current;
-    if (carousel) {
-      carousel.addEventListener("keydown", handleKeyDown);
-      return () => carousel.removeEventListener("keydown", handleKeyDown);
+    if (breadcrumbRef.current) {
+      managerRef.current = createKeyboardNavigationManager(
+        breadcrumbRef.current,
+        {
+          enableArrowKeys: true,
+          enableEnterActivation: true,
+          orientation: "horizontal",
+        }
+      );
+
+      // Handle focus changes
+      const handleFocusChange = () => {
+        if (managerRef.current) {
+          setCurrentIndex(managerRef.current.currentFocusIndex);
+        }
+      };
+
+      const currentBreadcrumbRef = breadcrumbRef.current;
+      currentBreadcrumbRef.addEventListener("focusin", handleFocusChange);
+
+      return () => {
+        currentBreadcrumbRef?.removeEventListener("focusin", handleFocusChange);
+        managerRef.current?.destroy();
+      };
     }
-  }, [handleKeyDown]);
 
-  const goToIndex = useCallback(
-    (index: number) => {
-      if (index >= 0 && index < itemCount) {
-        setFocusedIndex(index);
-        liveAnnouncer?.announce(`Item ${index + 1} of ${itemCount}`, "polite");
-      }
-    },
-    [itemCount]
-  );
+    return () => {
+      // Cleanup function for all code paths
+    };
+  }, [breadcrumbs]);
 
-  const goToNext = useCallback(() => {
-    const nextIndex = (focusedIndex + 1) % itemCount;
-    goToIndex(nextIndex);
-  }, [focusedIndex, itemCount, goToIndex]);
+  const goToNext = useCallback((): void => {
+    managerRef.current?.focusNext();
+  }, []);
 
-  const goToPrevious = useCallback(() => {
-    const prevIndex = focusedIndex === 0 ? itemCount - 1 : focusedIndex - 1;
-    goToIndex(prevIndex);
-  }, [focusedIndex, itemCount, goToIndex]);
+  const goToPrevious = useCallback((): void => {
+    managerRef.current?.focusPrevious();
+  }, []);
+
+  const getCurrentBreadcrumb = useCallback(() => {
+    if (currentIndex >= 0 && currentIndex < breadcrumbs.length) {
+      return breadcrumbs[currentIndex];
+    }
+    return null;
+  }, [currentIndex, breadcrumbs]);
 
   return {
-    carouselRef,
-    focusedIndex,
-    goToIndex,
+    breadcrumbRef,
+    currentIndex,
     goToNext,
     goToPrevious,
+    getCurrentBreadcrumb,
   };
 }
