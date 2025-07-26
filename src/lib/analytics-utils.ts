@@ -3,6 +3,24 @@ import {
   type AnalyticsProperties,
 } from "@/hooks/useAnalytics";
 
+// Types for analytics event processing
+export interface AnalyticsEventData {
+  event: AnalyticsEvent;
+  timestamp: number;
+  properties?: AnalyticsProperties;
+  sessionId?: string;
+}
+
+export interface AnalyticsStepData {
+  step: string;
+  timestamp: number;
+  properties?: AnalyticsProperties;
+}
+
+export interface FormDataRecord {
+  [key: string]: string | number | boolean | File | null | undefined;
+}
+
 // Analytics event tracking utilities
 export class AnalyticsTracker {
   private static instance: AnalyticsTracker;
@@ -31,12 +49,17 @@ export class AnalyticsTracker {
 
   // Project interaction tracking
   trackProjectView(projectId: string, projectTitle: string, category?: string) {
-    this.track("project_view", {
+    const properties: AnalyticsProperties = {
       project_id: projectId,
       project_title: projectTitle,
-      project_category: category,
       timestamp: Date.now(),
-    });
+    };
+    
+    if (category !== undefined) {
+      properties.project_category = category;
+    }
+    
+    this.track("project_view", properties);
   }
 
   trackProjectClick(
@@ -54,21 +77,31 @@ export class AnalyticsTracker {
 
   // Contact form tracking
   trackContactFormStart(inquiryType?: string) {
-    this.track("contact_form_start", {
-      inquiry_type: inquiryType,
+    const properties: AnalyticsProperties = {
       timestamp: Date.now(),
-    });
+    };
+    
+    if (inquiryType !== undefined) {
+      properties.inquiry_type = inquiryType;
+    }
+    
+    this.track("contact_form_start", properties);
   }
 
   trackContactFormStep(step: number, fieldName?: string) {
-    this.track("contact_form_submit", {
+    const properties: AnalyticsProperties = {
       form_step: step,
-      form_field: fieldName,
       timestamp: Date.now(),
-    });
+    };
+    
+    if (fieldName !== undefined) {
+      properties.form_field = fieldName;
+    }
+    
+    this.track("contact_form_submit", properties);
   }
 
-  trackContactFormComplete(inquiryType: string, formData: Record<string, any>) {
+  trackContactFormComplete(inquiryType: string, formData: FormDataRecord) {
     this.track("contact_form_complete", {
       inquiry_type: inquiryType,
       form_fields_completed: Object.keys(formData).length,
@@ -77,12 +110,17 @@ export class AnalyticsTracker {
   }
 
   trackContactFormError(step: number, error: string, fieldName?: string) {
-    this.track("contact_form_submit", {
+    const properties: AnalyticsProperties = {
       form_step: step,
-      form_field: fieldName,
       form_error: error,
       timestamp: Date.now(),
-    });
+    };
+    
+    if (fieldName !== undefined) {
+      properties.form_field = fieldName;
+    }
+    
+    this.track("contact_form_submit", properties);
   }
 
   // Skills and resume tracking
@@ -108,12 +146,17 @@ export class AnalyticsTracker {
 
   // Blog and content tracking
   trackBlogPostView(postId: string, postTitle: string, category?: string) {
-    this.track("blog_post_view", {
+    const properties: AnalyticsProperties = {
       blog_post_id: postId,
-      blog_category: category,
       content_title: postTitle,
       timestamp: Date.now(),
-    });
+    };
+    
+    if (category !== undefined) {
+      properties.blog_category = category;
+    }
+    
+    this.track("blog_post_view", properties);
   }
 
   trackBlogReadingProgress(postId: string, percentage: number) {
@@ -242,7 +285,7 @@ export class AnalyticsTracker {
 }
 
 // Utility functions for analytics data processing
-export function calculateEngagementScore(events: any[]): number {
+export function calculateEngagementScore(events: AnalyticsEventData[]): number {
   if (events.length === 0) return 0;
 
   let score = 0;
@@ -266,16 +309,16 @@ export function calculateEngagementScore(events: any[]): number {
     score += weight;
 
     // Bonus for longer engagement
-    if (event.properties?.time_spent > 30000) score += 2;
-    if (event.properties?.scroll_percentage > 75) score += 1;
-    if (event.properties?.reading_progress > 50) score += 2;
+    if (event.properties?.time_spent && event.properties.time_spent > 30000) score += 2;
+    if (event.properties?.scroll_percentage && event.properties.scroll_percentage > 75) score += 1;
+    if (event.properties?.reading_progress && event.properties.reading_progress > 50) score += 2;
   });
 
   return Math.min(score, 100); // Cap at 100
 }
 
 export function getTopPages(
-  events: any[]
+  events: AnalyticsEventData[]
 ): Array<{ page: string; views: number; engagement: number }> {
   const pageStats: Record<
     string,
@@ -283,7 +326,7 @@ export function getTopPages(
   > = {};
 
   events.forEach((event) => {
-    const page = event.properties?.page || new URL(event.url).pathname;
+    const page = event.properties?.page || "unknown";
 
     if (!pageStats[page]) {
       pageStats[page] = { views: 0, totalTime: 0, interactions: 0 };
@@ -317,21 +360,28 @@ export function getTopPages(
 }
 
 export function getUserJourney(
-  events: any[],
+  events: AnalyticsEventData[],
   sessionId: string
-): Array<{ step: string; timestamp: number; properties?: any }> {
+): AnalyticsStepData[] {
   return events
     .filter((event) => event.sessionId === sessionId)
     .sort((a, b) => a.timestamp - b.timestamp)
-    .map((event) => ({
-      step: event.event,
-      timestamp: event.timestamp,
-      properties: event.properties,
-    }));
+    .map((event) => {
+      const step: AnalyticsStepData = {
+        step: event.event,
+        timestamp: event.timestamp,
+      };
+      
+      if (event.properties !== undefined) {
+        step.properties = event.properties;
+      }
+      
+      return step;
+    });
 }
 
 export function calculateConversionRate(
-  events: any[],
+  events: AnalyticsEventData[],
   timeframe: "1h" | "24h" | "7d" | "30d" = "24h"
 ): number {
   const now = Date.now();

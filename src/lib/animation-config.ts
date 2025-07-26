@@ -143,19 +143,27 @@ class AnimationConfigManager {
   createVariants(baseVariants: Variants): Variants {
     if (this.config.reducedMotion) {
       // Return simplified variants for reduced motion
-      return {
-        initial: baseVariants.initial,
-        animate: {
+      const result: Variants = {};
+      
+      if (baseVariants.initial) {
+        result.initial = baseVariants.initial;
+      }
+      
+      if (baseVariants.animate) {
+        result.animate = {
           ...baseVariants.animate,
           transition: { duration: 0.01 },
-        },
-        exit: baseVariants.exit
-          ? {
-              ...baseVariants.exit,
-              transition: { duration: 0.01 },
-            }
-          : undefined,
-      };
+        };
+      }
+      
+      if (baseVariants.exit) {
+        result.exit = {
+          ...baseVariants.exit,
+          transition: { duration: 0.01 },
+        };
+      }
+      
+      return result;
     }
 
     return baseVariants;
@@ -280,15 +288,26 @@ export const animationPresets = {
 // Accessibility-aware animation utilities
 export function getAccessibleVariants(variants: Variants): Variants {
   const config = animationConfig.getConfig();
-  return config.reducedMotion
-    ? {
-        initial: variants.initial,
-        animate: { ...variants.animate, transition: { duration: 0.01 } },
-        exit: variants.exit
-          ? { ...variants.exit, transition: { duration: 0.01 } }
-          : undefined,
-      }
-    : variants;
+  
+  if (!config.reducedMotion) {
+    return variants;
+  }
+  
+  const result: Variants = {};
+  
+  if (variants.initial) {
+    result.initial = variants.initial;
+  }
+  
+  if (variants.animate) {
+    result.animate = { ...variants.animate, transition: { duration: 0.01 } };
+  }
+  
+  if (variants.exit) {
+    result.exit = { ...variants.exit, transition: { duration: 0.01 } };
+  }
+  
+  return result;
 }
 
 // Performance monitoring for animations

@@ -30,7 +30,7 @@ export interface AriaAttributes {
   "aria-describedby"?: string;
   "aria-expanded"?: boolean;
   "aria-hidden"?: boolean;
-  "aria-live"?: keyof typeof ARIA_LIVE;
+  "aria-live"?: "off" | "polite" | "assertive";
   "aria-atomic"?: boolean;
   "aria-relevant"?: string;
   "aria-busy"?: boolean;
@@ -59,7 +59,13 @@ export interface AriaAttributes {
   "aria-valuemax"?: number;
   "aria-valuenow"?: number;
   "aria-valuetext"?: string;
+  "aria-modal"?: boolean;
   role?: string;
+}
+
+// Extended interface for link attributes
+export interface LinkAttributes extends AriaAttributes {
+  href?: string;
 }
 
 // Screen reader only text utility
@@ -211,7 +217,7 @@ export const createAriaAttributes = {
   }),
 
   // Skip link
-  skipLink: (target: string): AriaAttributes => ({
+  skipLink: (target: string): LinkAttributes => ({
     "aria-label": `Skip to ${target}`,
     href: `#${target}`,
   }),
@@ -234,14 +240,14 @@ export const createAriaAttributes = {
   }),
 
   // Status message
-  status: (message: string): AriaAttributes => ({
+  status: (): AriaAttributes => ({
     role: "status",
     "aria-live": "polite",
     "aria-atomic": true,
   }),
 
   // Alert message
-  alert: (message: string): AriaAttributes => ({
+  alert: (): AriaAttributes => ({
     role: "alert",
     "aria-live": "assertive",
     "aria-atomic": true,
@@ -277,7 +283,12 @@ export class HeadingHierarchy {
       this.currentLevel = level;
     }
 
-    this.headings.push({ level, text, id });
+    // Handle optional id correctly
+    const heading: { level: number; text: string; id?: string } = { level, text };
+    if (id !== undefined) {
+      heading.id = id;
+    }
+    this.headings.push(heading);
     return true;
   }
 
@@ -349,12 +360,12 @@ export class FocusManager {
       if (e.key === "Tab") {
         if (e.shiftKey) {
           if (document.activeElement === firstElement) {
-            lastElement.focus();
+            lastElement?.focus();
             e.preventDefault();
           }
         } else {
           if (document.activeElement === lastElement) {
-            firstElement.focus();
+            firstElement?.focus();
             e.preventDefault();
           }
         }
@@ -363,7 +374,7 @@ export class FocusManager {
 
     container.addEventListener("keydown", handleTabKey);
 
-    // Focus first element
+    // Focus first element if it exists
     firstElement?.focus();
 
     // Return cleanup function

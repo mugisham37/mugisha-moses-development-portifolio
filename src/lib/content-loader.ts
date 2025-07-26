@@ -74,7 +74,7 @@ export class ContentLoader {
         type: "blog",
       });
 
-      return {
+      const blogPost: BlogPost = {
         slug,
         title: data.title,
         description: data.description || excerpt,
@@ -100,16 +100,20 @@ export class ContentLoader {
             twitter: "https://twitter.com/alexmorgan_dev",
           },
         },
-        coverImage: data.coverImage
-          ? {
-              src: data.coverImage,
-              alt: data.coverImageAlt || data.title,
-              width: data.coverImageWidth || 1200,
-              height: data.coverImageHeight || 630,
-            }
-          : undefined,
         relatedPosts: data.relatedPosts || [],
       };
+
+      // Conditionally add coverImage only if it exists
+      if (data.coverImage) {
+        blogPost.coverImage = {
+          src: data.coverImage,
+          alt: data.coverImageAlt || data.title,
+          width: data.coverImageWidth || 1200,
+          height: data.coverImageHeight || 630,
+        };
+      }
+
+      return blogPost;
     } catch (error) {
       console.error(`Error loading blog post ${slug}:`, error);
       return null;
@@ -180,7 +184,7 @@ export class ContentLoader {
         type: "case-study",
       });
 
-      return {
+      const caseStudy: BlogPost = {
         slug,
         title: data.title,
         description: data.description || excerpt,
@@ -206,16 +210,20 @@ export class ContentLoader {
             twitter: "https://twitter.com/alexmorgan_dev",
           },
         },
-        coverImage: data.coverImage
-          ? {
-              src: data.coverImage,
-              alt: data.coverImageAlt || data.title,
-              width: data.coverImageWidth || 1200,
-              height: data.coverImageHeight || 630,
-            }
-          : undefined,
         relatedPosts: data.relatedPosts || [],
       };
+
+      // Conditionally add coverImage only if it exists
+      if (data.coverImage) {
+        caseStudy.coverImage = {
+          src: data.coverImage,
+          alt: data.coverImageAlt || data.title,
+          width: data.coverImageWidth || 1200,
+          height: data.coverImageHeight || 630,
+        };
+      }
+
+      return caseStudy;
     } catch (error) {
       console.error(`Error loading case study ${slug}:`, error);
       return null;
@@ -266,7 +274,7 @@ export class ContentLoader {
         type: "learning-note",
       });
 
-      return {
+      const learningNote: BlogPost = {
         slug,
         title: data.title,
         description: data.description || excerpt,
@@ -292,16 +300,20 @@ export class ContentLoader {
             twitter: "https://twitter.com/alexmorgan_dev",
           },
         },
-        coverImage: data.coverImage
-          ? {
-              src: data.coverImage,
-              alt: data.coverImageAlt || data.title,
-              width: data.coverImageWidth || 1200,
-              height: data.coverImageHeight || 630,
-            }
-          : undefined,
         relatedPosts: data.relatedPosts || [],
       };
+
+      // Conditionally add coverImage only if it exists
+      if (data.coverImage) {
+        learningNote.coverImage = {
+          src: data.coverImage,
+          alt: data.coverImageAlt || data.title,
+          width: data.coverImageWidth || 1200,
+          height: data.coverImageHeight || 630,
+        };
+      }
+
+      return learningNote;
     } catch (error) {
       console.error(`Error loading learning note ${slug}:`, error);
       return null;

@@ -294,8 +294,8 @@ export const magneticEffect = (strength: number = 0.3) => ({
   y: 0,
   transition: {
     type: "spring",
-    damping: 15,
-    stiffness: 150,
+    damping: 15 * (1 / strength), // Use strength to modify damping
+    stiffness: 150 * strength, // Use strength to modify stiffness
     mass: 0.1,
   },
 });
