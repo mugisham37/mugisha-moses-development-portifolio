@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { motion, AnimatePresence } from "framer-motion";
 import { skillCategories } from "@/data/skills";
-import type { SkillCategory, Skill } from "@/types";
+import type { Skill } from "@/types";
 
 interface SkillRadarProps {
   className?: string;
@@ -41,7 +41,6 @@ export function SkillRadar({
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
-  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(true);
 
   // Size configurations
@@ -86,6 +85,28 @@ export function SkillRadar({
 
     const radiusScale = d3.scaleLinear().domain([0, 10]).range([0, radius]);
 
+    // Create gradient first (before using it)
+    const defs = svg.append("defs");
+    const gradientId = `radarGradient-${Math.random().toString(36).substr(2, 9)}`;
+    const gradient = defs
+      .append("radialGradient")
+      .attr("id", gradientId)
+      .attr("cx", "50%")
+      .attr("cy", "50%")
+      .attr("r", "50%");
+
+    gradient
+      .append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", theme === "neon" ? "#00FFFF" : "#3B82F6")
+      .attr("stop-opacity", 0.6);
+
+    gradient
+      .append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", theme === "neon" ? "#FF00FF" : "#8B5CF6")
+      .attr("stop-opacity", 0.1);
+
     // Create grid circles
     const gridLevels = [2, 4, 6, 8, 10];
     const gridGroup = g.append("g").attr("class", "grid");
@@ -111,7 +132,7 @@ export function SkillRadar({
         .text(level.toString());
     });
 
-    // Create axis lines
+    // Create axis lines and labels
     const axisGroup = g.append("g").attr("class", "axes");
 
     radarData.forEach((d, i) => {
@@ -134,7 +155,7 @@ export function SkillRadar({
       const labelX = Math.cos(angle) * labelRadius;
       const labelY = Math.sin(angle) * labelRadius;
 
-      axisGroup
+      const textElement = axisGroup
         .append("text")
         .attr("x", labelX)
         .attr("y", labelY)
@@ -144,9 +165,14 @@ export function SkillRadar({
         .attr("font-weight", "500")
         .attr("fill", theme === "dark" ? "#F3F4F6" : "#1F2937")
         .style("cursor", interactive ? "pointer" : "default")
-        .text(d.category.replace(/[&-]/g, " "))
-        .on("mouseover", interactive ? () => handleCategoryHover(d, i) : null)
-        .on("mouseout", interactive ? () => handleCategoryLeave() : null);
+        .text(d.category.replace(/[&-]/g, " "));
+
+      // Add event listeners conditionally
+      if (interactive) {
+        textElement
+          .on("mouseover", () => handleCategoryHover(d, i))
+          .on("mouseout", () => handleCategoryLeave());
+      }
     });
 
     // Create radar area
@@ -184,29 +210,6 @@ export function SkillRadar({
       .attr("stroke-width", 2)
       .attr("stroke-linejoin", "round");
 
-    // Create gradient
-    const defs = svg.append("defs");
-    const gradient = defs
-      .append("radialGradient")
-      .attr("id", `radarGradient-${Math.random().toString(36).substr(2, 9)}`)
-      .attr("cx", "50%")
-      .attr("cy", "50%")
-      .attr("r", "50%");
-
-    const gradientId = gradient.attr("id");
-
-    gradient
-      .append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", theme === "neon" ? "#00FFFF" : "#3B82F6")
-      .attr("stop-opacity", 0.6);
-
-    gradient
-      .append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", theme === "neon" ? "#FF00FF" : "#8B5CF6")
-      .attr("stop-opacity", 0.1);
-
     // Add data points
     const pointsGroup = g.append("g").attr("class", "data-points");
 
@@ -229,7 +232,7 @@ export function SkillRadar({
 
       if (interactive) {
         point
-          .on("mouseover", (event) => handlePointHover(event, d, x, y))
+          .on("mouseover", (event) => handlePointHover(event, d))
           .on("mouseout", handlePointLeave)
           .on("click", () => handlePointClick(d));
       }
@@ -277,8 +280,6 @@ export function SkillRadar({
   ]);
 
   const handleCategoryHover = (data: RadarDataPoint, index: number) => {
-    setHoveredCategory(data.category);
-
     // Highlight the category
     const svg = d3.select(svgRef.current);
     svg
@@ -291,8 +292,6 @@ export function SkillRadar({
   };
 
   const handleCategoryLeave = () => {
-    setHoveredCategory(null);
-
     // Reset category styling
     const svg = d3.select(svgRef.current);
     svg
@@ -305,9 +304,7 @@ export function SkillRadar({
 
   const handlePointHover = (
     event: MouseEvent,
-    data: RadarDataPoint,
-    x: number,
-    y: number
+    data: RadarDataPoint
   ) => {
     const containerRect = containerRef.current?.getBoundingClientRect();
     if (!containerRect) return;

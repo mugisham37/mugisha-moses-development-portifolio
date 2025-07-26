@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { generateAltText } from "@/lib/accessibility";
+import Link from "next/link";
 
 interface FooterProps {
   className?: string;
@@ -100,14 +100,15 @@ export function Footer({ className }: FooterProps) {
               <ul className="space-y-2" role="list">
                 {quickLinks.map((link) => (
                   <li key={link.name} role="listitem">
-                    <motion.a
-                      href={link.href}
-                      whileHover={{ x: 4 }}
-                      className="block text-sm text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-                      aria-label={`Navigate to ${link.name} section`}
-                    >
-                      {link.name}
-                    </motion.a>
+                    <motion.div whileHover={{ x: 4 }}>
+                      <a
+                        href={link.href}
+                        className="block text-sm text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+                        aria-label={`Navigate to ${link.name} section`}
+                      >
+                        {link.name}
+                      </a>
+                    </motion.div>
                   </li>
                 ))}
               </ul>
@@ -136,35 +137,38 @@ export function Footer({ className }: FooterProps) {
               <ul className="flex flex-wrap gap-3" role="list">
                 {socialLinks.map((social) => (
                   <li key={social.name} role="listitem">
-                    <motion.a
-                      href={social.href}
-                      target={
-                        social.href.startsWith("http") ? "_blank" : undefined
-                      }
-                      rel={
-                        social.href.startsWith("http")
-                          ? "noopener noreferrer"
-                          : undefined
-                      }
+                    <motion.div
                       whileHover={{ scale: 1.1, y: -2 }}
                       whileTap={{ scale: 0.95 }}
-                      aria-label={`${social.name}${
-                        social.href.startsWith("http")
-                          ? " (opens in new tab)"
-                          : ""
-                      }`}
-                      className={`
-                        flex items-center justify-center w-10 h-10 rounded-lg
-                        bg-background border border-border text-muted-foreground
-                        transition-all duration-200 ${social.color}
-                        hover:border-current hover:shadow-md
-                        focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
-                      `}
                     >
-                      <span className="text-lg" aria-hidden="true">
-                        {social.icon}
-                      </span>
-                    </motion.a>
+                      <a
+                        href={social.href}
+                        target={
+                          social.href.startsWith("http") ? "_blank" : undefined
+                        }
+                        rel={
+                          social.href.startsWith("http")
+                            ? "noopener noreferrer"
+                            : undefined
+                        }
+                        aria-label={`${social.name}${
+                          social.href.startsWith("http")
+                            ? " (opens in new tab)"
+                            : ""
+                        }`}
+                        className={`
+                          flex items-center justify-center w-10 h-10 rounded-lg
+                          bg-background border border-border text-muted-foreground
+                          transition-all duration-200 ${social.color}
+                          hover:border-current hover:shadow-md
+                          focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+                        `}
+                      >
+                        <span className="text-lg" aria-hidden="true">
+                          {social.icon}
+                        </span>
+                      </a>
+                    </motion.div>
                   </li>
                 ))}
               </ul>
@@ -202,24 +206,26 @@ export function Footer({ className }: FooterProps) {
               <nav aria-label="Legal links" role="navigation">
                 <ul className="flex items-center space-x-6" role="list">
                   <li role="listitem">
-                    <motion.a
-                      href="/privacy"
-                      whileHover={{ scale: 1.05 }}
-                      className="hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-                      aria-label="Privacy Policy"
-                    >
-                      Privacy Policy
-                    </motion.a>
+                    <motion.div whileHover={{ scale: 1.05 }}>
+                      <Link
+                        href="/privacy"
+                        className="hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+                        aria-label="Privacy Policy"
+                      >
+                        Privacy Policy
+                      </Link>
+                    </motion.div>
                   </li>
                   <li role="listitem">
-                    <motion.a
-                      href="/terms"
-                      whileHover={{ scale: 1.05 }}
-                      className="hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-                      aria-label="Terms of Service"
-                    >
-                      Terms of Service
-                    </motion.a>
+                    <motion.div whileHover={{ scale: 1.05 }}>
+                      <Link
+                        href="/terms"
+                        className="hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+                        aria-label="Terms of Service"
+                      >
+                        Terms of Service
+                      </Link>
+                    </motion.div>
                   </li>
                 </ul>
               </nav>

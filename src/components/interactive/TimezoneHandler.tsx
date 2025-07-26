@@ -44,7 +44,6 @@ export function TimezoneHandler({
   const [detectedTimezone, setDetectedTimezone] = useState<string>("");
   const [timezoneInfo, setTimezoneInfo] = useState<TimezoneInfo[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     // Detect user's timezone
@@ -54,7 +53,6 @@ export function TimezoneHandler({
 
     // Update times every second
     const timer = setInterval(() => {
-      setCurrentTime(new Date());
       updateTimezoneInfo();
     }, 1000);
 
@@ -243,14 +241,27 @@ export function TimezoneHandler({
           <h4 className="text-sm font-medium mb-3">Meeting Time Preview</h4>
           <div className="space-y-2">
             {["9:00 AM", "2:00 PM", "5:00 PM"].map((time, index) => {
-              const [hour, period] = time.split(" ");
-              const [hourNum] = hour.split(":");
+              const timeParts = time.split(" ");
+              const hourPart = timeParts[0];
+              const period = timeParts[1];
+              
+              if (!hourPart || !period) {
+                return null; // Skip invalid time format
+              }
+              
+              const hourMinuteParts = hourPart.split(":");
+              const hourNum = hourMinuteParts[0];
+              
+              if (!hourNum) {
+                return null; // Skip if hour is not available
+              }
+              
               const hour24 =
                 period === "PM" && hourNum !== "12"
-                  ? parseInt(hourNum) + 12
+                  ? parseInt(hourNum, 10) + 12
                   : period === "AM" && hourNum === "12"
                   ? 0
-                  : parseInt(hourNum);
+                  : parseInt(hourNum, 10);
 
               const meetingDate = new Date();
               meetingDate.setHours(hour24, 0, 0, 0);
@@ -271,7 +282,7 @@ export function TimezoneHandler({
                   <span className="font-medium">{localTime} (Your time)</span>
                 </div>
               );
-            })}
+            }).filter(Boolean)}
           </div>
         </div>
       </Card>

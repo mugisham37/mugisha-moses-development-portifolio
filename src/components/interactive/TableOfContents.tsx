@@ -20,7 +20,7 @@ export function TableOfContents({
   mobile = false,
 }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>("");
-  const [isVisible, setIsVisible] = useState(!mobile);
+  const [isVisible] = useState(!mobile); // setIsVisible removed as it's not currently used
 
   useEffect(() => {
     const observer = new IntersectionObserver(

@@ -32,7 +32,17 @@ export interface AriaAttributes {
   "aria-hidden"?: boolean;
   "aria-live"?: "off" | "polite" | "assertive";
   "aria-atomic"?: boolean;
-  "aria-relevant"?: string;
+  "aria-relevant"?: 
+    | "text" 
+    | "additions" 
+    | "additions removals" 
+    | "additions text" 
+    | "all" 
+    | "removals" 
+    | "removals additions" 
+    | "removals text" 
+    | "text additions" 
+    | "text removals";
   "aria-busy"?: boolean;
   "aria-current"?:
     | "page"

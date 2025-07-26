@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Navigation } from "./Navigation";
 import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import {
-  createAriaAttributes,
   FocusManager,
   generateId,
 } from "@/lib/accessibility";
@@ -142,10 +141,9 @@ export function Header({ className }: HeaderProps) {
               whileTap={{ scale: 0.95 }}
               className="p-2 rounded-lg text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              {...createAriaAttributes.expandableButton(
-                isMobileMenuOpen,
-                mobileMenuId
-              )}
+              aria-expanded={isMobileMenuOpen}
+              aria-haspopup={true}
+              aria-controls={mobileMenuId}
               aria-label={
                 isMobileMenuOpen
                   ? "Close navigation menu"

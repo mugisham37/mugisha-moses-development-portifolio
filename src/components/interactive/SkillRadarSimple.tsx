@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import { motion } from "framer-motion";
 import { skillCategories } from "@/data/skills";
@@ -114,7 +114,7 @@ export function SkillRadarSimple({ className = "" }: SkillRadarSimpleProps) {
         .attr("stroke", "#1F2937")
         .attr("stroke-width", 2);
     });
-  }, [radarData]);
+  }, [radarData, radius]);
 
   return (
     <div className={`relative ${className}`}>

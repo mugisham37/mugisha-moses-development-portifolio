@@ -70,6 +70,11 @@ export function smoothScrollTo(elementId: string, offset = 0): void {
   }
 }
 
+// Utility for scrolling to element (alias for smoothScrollTo for backwards compatibility)
+export function scrollToElement(elementId: string, offset = 0): void {
+  smoothScrollTo(elementId, offset);
+}
+
 // Utility for checking if element is in viewport
 export function isInViewport(element: HTMLElement): boolean {
   const rect = element.getBoundingClientRect();

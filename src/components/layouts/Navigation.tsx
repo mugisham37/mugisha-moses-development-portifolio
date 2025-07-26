@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { scrollToElement } from "@/lib/utils";
-import { createAriaAttributes, liveAnnouncer } from "@/lib/accessibility";
+import { liveAnnouncer } from "@/lib/accessibility";
 
 interface NavigationProps {
   className?: string;
@@ -110,7 +110,6 @@ export function Navigation({
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }
               `}
-              {...createAriaAttributes.currentPage()}
               aria-current={activeSection === item.id ? "page" : undefined}
               aria-label={`Navigate to ${item.label} section${
                 activeSection === item.id ? " (current)" : ""
