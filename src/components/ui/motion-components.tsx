@@ -25,4 +25,6 @@ export const MotionA = motion.a as any;
 export const MotionForm = motion.form as any;
 export const MotionInput = motion.input as any;
 export const MotionTextarea = motion.textarea as any;
-export const MotionLabel = motion.label as any;
+
+// Create a motion label component using motion.div with proper semantics
+export const MotionLabel = motion.div as any;

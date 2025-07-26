@@ -20,22 +20,30 @@ declare module "framer-motion" {
     type?: "spring" | "keyframes" | "tween" | "inertia" | "just";
     duration?: number;
     delay?: number;
-    ease?: Easing;
+    ease?: Easing | Easing[];
+    times?: number[];
     repeat?: number;
     repeatType?: "loop" | "reverse" | "mirror";
     repeatDelay?: number;
+    from?: string | number;
+    velocity?: number;
     stiffness?: number;
     damping?: number;
     mass?: number;
-    bounce?: number;
-    velocity?: number;
     restSpeed?: number;
     restDelta?: number;
+    bounce?: number;
+    bounceDamping?: number;
+    bounceStiffness?: number;
+    min?: number;
+    max?: number;
+    power?: number;
+    timeConstant?: number;
+    modifyTarget?: (v: number) => number;
     when?: false | "beforeChildren" | "afterChildren" | string;
     delayChildren?: number;
     staggerChildren?: number;
     staggerDirection?: 1 | -1;
-    times?: number[];
   }
 
   export interface MotionValue<T = unknown> {
