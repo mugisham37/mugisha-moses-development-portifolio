@@ -136,26 +136,26 @@ export function ResumeContent({ format, view }: ResumeContentProps) {
             {/* Left Column - Skills and Certifications */}
             <div className="lg:col-span-1 space-y-8">
               <motion.div variants={sectionVariants}>
-                <SkillsSection format={format} view={view} />
+                <SkillsSection format={format} />
               </motion.div>
               <motion.div variants={sectionVariants}>
-                <CertificationsSection format={format} view={view} />
+                <CertificationsSection format={format} />
               </motion.div>
               <motion.div variants={sectionVariants}>
-                <AchievementsSection format={format} view={view} />
+                <AchievementsSection format={format} />
               </motion.div>
             </div>
 
             {/* Right Column - Experience, Projects, Education */}
             <div className="lg:col-span-2 space-y-8">
               <motion.div variants={sectionVariants}>
-                <ExperienceSection format={format} view={view} />
+                <ExperienceSection format={format} />
               </motion.div>
               <motion.div variants={sectionVariants}>
-                <ProjectsSection format={format} view={view} />
+                <ProjectsSection format={format} />
               </motion.div>
               <motion.div variants={sectionVariants}>
-                <EducationSection format={format} view={view} />
+                <EducationSection format={format} />
               </motion.div>
             </div>
           </div>
@@ -167,7 +167,7 @@ export function ResumeContent({ format, view }: ResumeContentProps) {
               const SectionComponent = section.component;
               return (
                 <motion.div key={section.key} variants={sectionVariants}>
-                  <SectionComponent format={format} view={view} />
+                  <SectionComponent format={format} />
                 </motion.div>
               );
             })}
@@ -181,7 +181,7 @@ export function ResumeContent({ format, view }: ResumeContentProps) {
               return (
                 <motion.div key={section.key} variants={sectionVariants}>
                   <ResumeSection title={section.title} format={format}>
-                    <SectionComponent format={format} view={view} />
+                    <SectionComponent format={format} />
                   </ResumeSection>
                 </motion.div>
               );

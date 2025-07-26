@@ -8,11 +8,10 @@ import {
   ArrowTopRightOnSquareIcon,
 } from "@heroicons/react/24/outline";
 import { projects } from "@/data/projects";
-import { ResumeFormat, ResumeView } from "../ResumeContainer";
+import { ResumeFormat } from "../ResumeContainer";
 
 interface ProjectsSectionProps {
   format: ResumeFormat;
-  view: ResumeView;
 }
 
 export function ProjectsSection({ format }: ProjectsSectionProps) {

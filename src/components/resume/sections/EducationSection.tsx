@@ -4,17 +4,15 @@ import { motion } from "framer-motion";
 import {
   AcademicCapIcon,
   CalendarIcon,
-  MapPinIcon,
 } from "@heroicons/react/24/outline";
 import { education } from "@/data/personal-info";
-import { ResumeFormat, ResumeView } from "../ResumeContainer";
+import { ResumeFormat } from "../ResumeContainer";
 
 interface EducationSectionProps {
   format: ResumeFormat;
-  view: ResumeView;
 }
 
-export function EducationSection({ format, view }: EducationSectionProps) {
+export function EducationSection({ format }: EducationSectionProps) {
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {
       month: "short",

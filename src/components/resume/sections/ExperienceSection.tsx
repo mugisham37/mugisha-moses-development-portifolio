@@ -7,14 +7,13 @@ import {
   BuildingOfficeIcon,
 } from "@heroicons/react/24/outline";
 import { experience } from "@/data/experience";
-import { ResumeFormat, ResumeView } from "../ResumeContainer";
+import { ResumeFormat } from "../ResumeContainer";
 
 interface ExperienceSectionProps {
   format: ResumeFormat;
-  view: ResumeView;
 }
 
-export function ExperienceSection({ format, view }: ExperienceSectionProps) {
+export function ExperienceSection({ format }: ExperienceSectionProps) {
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {
       month: "short",
@@ -119,9 +118,9 @@ export function ExperienceSection({ format, view }: ExperienceSectionProps) {
                 </h4>
                 <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
                   <p className="text-sm text-blue-800 dark:text-blue-200">
-                    {job.achievements[0].description}
+                    {job.achievements[0]?.description}
                   </p>
-                  {job.achievements[0].metrics && (
+                  {job.achievements[0]?.metrics && (
                     <div className="flex space-x-4 mt-2">
                       {job.achievements[0].metrics
                         .slice(0, 2)

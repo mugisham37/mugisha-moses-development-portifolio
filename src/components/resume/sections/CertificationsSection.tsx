@@ -8,16 +8,14 @@ import {
   CheckBadgeIcon,
 } from "@heroicons/react/24/outline";
 import { certifications } from "@/data/personal-info";
-import { ResumeFormat, ResumeView } from "../ResumeContainer";
+import { ResumeFormat } from "../ResumeContainer";
 
 interface CertificationsSectionProps {
   format: ResumeFormat;
-  view: ResumeView;
 }
 
 export function CertificationsSection({
   format,
-  view,
 }: CertificationsSectionProps) {
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {

@@ -8,16 +8,14 @@ import {
   SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { achievements } from "@/data/personal-info";
-import { ResumeFormat, ResumeView } from "../ResumeContainer";
+import { ResumeFormat } from "../ResumeContainer";
 
 interface AchievementsSectionProps {
   format: ResumeFormat;
-  view: ResumeView;
 }
 
 export function AchievementsSection({
   format,
-  view,
 }: AchievementsSectionProps) {
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {

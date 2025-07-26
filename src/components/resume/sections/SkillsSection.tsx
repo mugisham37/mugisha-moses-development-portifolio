@@ -2,11 +2,10 @@
 
 import { motion } from "framer-motion";
 import { skillCategories } from "@/data/skills";
-import { ResumeFormat, ResumeView } from "../ResumeContainer";
+import { ResumeFormat } from "../ResumeContainer";
 
 interface SkillsSectionProps {
   format: ResumeFormat;
-  view: ResumeView;
 }
 
 export function SkillsSection({ format }: SkillsSectionProps) {
