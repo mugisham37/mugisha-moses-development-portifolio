@@ -2,6 +2,7 @@
 
 import { Theme, themeConfigs, isValidTheme } from "./theme";
 import { validateThemeConfig, getContrastRatio } from "./theme-utils";
+import type { ExtendedPerformance } from "../types/performance";
 
 export interface ThemeTestResult {
   theme: Theme;
@@ -234,15 +235,17 @@ export class ThemeTester {
 
       // Test memory usage if available
       if ("memory" in performance) {
-        const memory = (performance as any).memory;
-        result.performance.memoryUsage = Math.round(
-          memory.usedJSHeapSize / 1024 / 1024
-        );
-
-        if (result.performance.memoryUsage > 100) {
-          result.warnings.push(
-            `High memory usage: ${result.performance.memoryUsage}MB`
+        const memory = (performance as ExtendedPerformance).memory;
+        if (memory) {
+          result.performance.memoryUsage = Math.round(
+            memory.usedJSHeapSize / 1024 / 1024
           );
+
+          if (result.performance.memoryUsage > 100) {
+            result.warnings.push(
+              `High memory usage: ${result.performance.memoryUsage}MB`
+            );
+          }
         }
       }
     } catch (error) {

@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { CallableFunction, DocumentWithExecCommand } from "../types/performance";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -11,24 +12,24 @@ export function generateId(prefix = "id"): string {
 }
 
 // Utility for debouncing functions
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
+export function debounce<Args extends readonly unknown[]>(
+  func: CallableFunction<Args>,
   wait: number
-): (...args: Parameters<T>) => void {
+): (...args: Args) => void {
   let timeout: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
+  return (...args: Args) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
   };
 }
 
 // Utility for throttling functions
-export function throttle<T extends (...args: any[]) => any>(
-  func: T,
+export function throttle<Args extends readonly unknown[]>(
+  func: CallableFunction<Args>,
   limit: number
-): (...args: Parameters<T>) => void {
+): (...args: Args) => void {
   let inThrottle: boolean;
-  return (...args: Parameters<T>) => {
+  return (...args: Args) => {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;
@@ -86,7 +87,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
     return true;
-  } catch (err) {
+  } catch {
     // Fallback for older browsers
     const textArea = document.createElement("textarea");
     textArea.value = text;
@@ -94,10 +95,10 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     textArea.focus();
     textArea.select();
     try {
-      document.execCommand("copy");
+      const success = (document as DocumentWithExecCommand).execCommand("copy");
       document.body.removeChild(textArea);
-      return true;
-    } catch (fallbackErr) {
+      return success;
+    } catch {
       document.body.removeChild(textArea);
       return false;
     }

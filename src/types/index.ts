@@ -1,5 +1,8 @@
 // Core Type Definitions for Elite Developer Portfolio
 
+// Export performance types
+export * from './performance';
+
 // Project Types
 export interface Project {
   id: string;

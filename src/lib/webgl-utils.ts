@@ -134,7 +134,7 @@ export function isWebGLSupported(): boolean {
     const gl = (canvas.getContext("webgl") ||
       canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
     return !!gl;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -147,7 +147,7 @@ export function isWebGL2Supported(): boolean {
     const canvas = document.createElement("canvas");
     const gl2 = canvas.getContext("webgl2") as WebGL2RenderingContext | null;
     return !!gl2;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
