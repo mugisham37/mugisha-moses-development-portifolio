@@ -200,3 +200,5 @@ export function HeroContentMobile({ className }: HeroContentProps) {
     </div>
   );
 }
+
+export default HeroContent;

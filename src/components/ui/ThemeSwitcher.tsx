@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useTheme } from "@/components/providers/ThemeProvider";
-import { Theme, themes } from "@/lib/theme";
+import { Theme, themes, themeConfigs } from "@/lib/theme";
 import { useMenuKeyboardNavigation } from "@/hooks";
 import {
   generateId,
@@ -438,6 +438,49 @@ export function GridThemeSwitcher({
       className={className}
       {...props}
     />
+  );
+}
+
+// Theme Preview Component
+export function ThemePreview({ 
+  theme: previewTheme, 
+  className = "",
+  showLabel = true 
+}: { 
+  theme: Theme; 
+  className?: string; 
+  showLabel?: boolean;
+}) {
+  const themeConfig = themeConfigs[previewTheme];
+  
+  if (!themeConfig) {
+    return null;
+  }
+  
+  return (
+    <div className={`p-4 rounded-lg border ${className}`}>
+      <div className="flex items-center gap-3">
+        <div className="flex gap-1">
+          <div 
+            className="w-4 h-4 rounded-full" 
+            style={{ backgroundColor: themeConfig.colors.primary }}
+          />
+          <div 
+            className="w-4 h-4 rounded-full" 
+            style={{ backgroundColor: themeConfig.colors.secondary }}
+          />
+          <div 
+            className="w-4 h-4 rounded-full" 
+            style={{ backgroundColor: themeConfig.colors.accent }}
+          />
+        </div>
+        {showLabel && (
+          <span className="text-sm font-medium capitalize">
+            {previewTheme}
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
 

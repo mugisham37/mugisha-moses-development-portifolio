@@ -50,7 +50,7 @@ export function RelatedPosts({ posts, currentPost }: RelatedPostsProps) {
               <Card className="group overflow-hidden h-full hover:shadow-xl transition-all duration-500 flex flex-col">
                 <Link
                   href={`/blog/${post.slug}`}
-                  className="block flex-1 flex flex-col"
+                  className="flex-1 flex flex-col"
                 >
                   {/* Cover Image */}
                   <div className="relative h-48 overflow-hidden">

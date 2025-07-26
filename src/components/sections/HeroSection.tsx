@@ -83,3 +83,5 @@ export function HeroSection({ className }: HeroSectionProps) {
     </section>
   );
 }
+
+export default HeroSection;
