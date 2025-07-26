@@ -1,9 +1,8 @@
 import React from "react";
-import { HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { MotionDiv, MotionSpan } from "./motion-components";
 
-interface TypographyProps extends Omit<HTMLMotionProps<"div">, "children"> {
+interface TypographyProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?:
     | "display"
     | "h1"

@@ -1,8 +1,8 @@
 import React from "react";
-import { motion, HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { MotionDiv } from "./motion-components";
 
-interface CardProps extends HTMLMotionProps<"div"> {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?:
     | "default"
     | "glass"
@@ -16,7 +16,20 @@ interface CardProps extends HTMLMotionProps<"div"> {
   rounded?: "none" | "sm" | "md" | "lg" | "xl" | "full";
   border?: boolean;
   shadow?: "none" | "sm" | "md" | "lg" | "xl";
-  className?: string;
+  // Motion props
+  initial?: string | boolean | object;
+  animate?: string | object;
+  exit?: string | object;
+  variants?: object;
+  transition?: object;
+  whileHover?: string | object;
+  whileTap?: string | object;
+  whileFocus?: string | object;
+  whileDrag?: string | object;
+  whileInView?: string | object;
+  drag?: boolean | "x" | "y";
+  layout?: boolean | "position" | "size";
+  layoutId?: string;
 }
 
 export function Card({
@@ -131,7 +144,7 @@ export function Card({
   };
 
   return (
-    <motion.div
+    <MotionDiv
       className={cn(baseStyles, variants[variant], className)}
       {...(hover && hoverAnimations[hover as keyof typeof hoverAnimations])}
       {...props}
@@ -143,7 +156,7 @@ export function Card({
 
       {/* Shimmer effect for glass variant */}
       {variant === "glass" && (
-        <motion.div
+        <MotionDiv
           whileHover={{
             opacity: 1,
             x: ["0%", "100%"],
@@ -161,7 +174,7 @@ export function Card({
       )}
 
       <div className="relative z-10">{children}</div>
-    </motion.div>
+    </MotionDiv>
   );
 }
 

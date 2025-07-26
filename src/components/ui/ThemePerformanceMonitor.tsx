@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "./Card";
+import { MotionButton, MotionDiv } from "./motion-components";
 
 interface PerformanceMetrics {
   themeSwitch: {
@@ -110,7 +110,7 @@ export function ThemePerformanceMonitor({
 
     const measureMemory = () => {
       if ("memory" in performance) {
-        const memory = (performance as any).memory;
+        const memory = (performance as unknown as { memory: { usedJSHeapSize: number } }).memory;
         const usedMB = Math.round(memory.usedJSHeapSize / 1024 / 1024);
 
         setMetrics((prev) => ({
@@ -162,7 +162,7 @@ export function ThemePerformanceMonitor({
         <div className="flex items-center justify-between">
           <CardTitle>Theme Performance Monitor</CardTitle>
           <div className="flex gap-2">
-            <motion.button
+            <MotionButton
               onClick={toggleMonitoring}
               className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                 isMonitoring
@@ -173,15 +173,15 @@ export function ThemePerformanceMonitor({
               whileTap={{ scale: 0.95 }}
             >
               {isMonitoring ? "Stop" : "Start"}
-            </motion.button>
-            <motion.button
+            </MotionButton>
+            <MotionButton
               onClick={clearMetrics}
               className="px-3 py-1 rounded text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               Clear
-            </motion.button>
+            </MotionButton>
           </div>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -229,7 +229,7 @@ export function ThemePerformanceMonitor({
         {/* Current Status */}
         <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-lg">
           <div className="flex items-center gap-2">
-            <motion.div
+            <MotionDiv
               className={`w-3 h-3 rounded-full ${
                 isTransitioning ? "bg-yellow-500" : "bg-green-500"
               }`}
@@ -253,7 +253,7 @@ export function ThemePerformanceMonitor({
 
           {isMonitoring && (
             <div className="flex items-center gap-2">
-              <motion.div
+              <MotionDiv
                 className="w-2 h-2 bg-red-500 rounded-full"
                 animate={{ opacity: [1, 0.3, 1] }}
                 transition={{ repeat: Infinity, duration: 1 }}
