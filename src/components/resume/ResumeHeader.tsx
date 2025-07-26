@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import {
   EnvelopeIcon,
   PhoneIcon,
@@ -9,7 +8,7 @@ import {
   GlobeAltIcon,
   CalendarIcon,
 } from "@heroicons/react/24/outline";
-import { personalInfo, socialLinks } from "@/data/personal-info";
+import { personalInfo } from "@/data/personal-info";
 import { ResumeFormat, ResumeView } from "./ResumeContainer";
 
 interface ResumeHeaderProps {
@@ -18,17 +17,6 @@ interface ResumeHeaderProps {
 }
 
 export function ResumeHeader({ format, view }: ResumeHeaderProps) {
-  const getHeaderLayout = () => {
-    switch (format) {
-      case "creative":
-        return "creative-header";
-      case "minimal":
-        return "minimal-header";
-      default:
-        return "standard-header";
-    }
-  };
-
   const contactInfo = [
     {
       icon: EnvelopeIcon,
@@ -48,12 +36,23 @@ export function ResumeHeader({ format, view }: ResumeHeaderProps) {
     },
   ];
 
+  // Determine classes based on view type
+  const getViewClasses = () => {
+    if (view === "print") {
+      return "print:bg-white print:text-black print:shadow-none";
+    }
+    if (view === "presentation") {
+      return "text-lg scale-110";
+    }
+    return "";
+  };
+
   if (format === "creative") {
     return (
       <motion.header
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="creative-header relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white overflow-hidden"
+        className={`creative-header relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white overflow-hidden ${getViewClasses()}`}
       >
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
@@ -175,7 +174,7 @@ export function ResumeHeader({ format, view }: ResumeHeaderProps) {
       <motion.header
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="minimal-header border-b border-slate-200 dark:border-slate-700 py-8"
+        className={`minimal-header border-b border-slate-200 dark:border-slate-700 py-8 ${getViewClasses()}`}
       >
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center">
@@ -220,7 +219,7 @@ export function ResumeHeader({ format, view }: ResumeHeaderProps) {
     <motion.header
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="standard-header bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700"
+      className={`standard-header bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 ${getViewClasses()}`}
     >
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">

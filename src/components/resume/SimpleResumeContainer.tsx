@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
+import type { Experience } from "@/types";
 import {
   DocumentArrowDownIcon,
   PrinterIcon,
@@ -17,10 +18,8 @@ import {
   experience,
   education,
   certifications,
-  achievements,
 } from "@/data/personal-info";
 import { skills } from "@/data/skills";
-import { projects } from "@/data/projects";
 
 export type ResumeFormat = "standard" | "creative" | "minimal";
 export type ResumeView = "interactive" | "print" | "presentation";
@@ -31,6 +30,29 @@ export function SimpleResumeContainer() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Group skills by category
+  const groupedSkills = skills.reduce((acc, skill) => {
+    const category = skill.category;
+    if (!acc[category]) {
+      acc[category] = {
+        category: category,
+        skills: [],
+      };
+    }
+    acc[category]!.skills.push(skill);
+    return acc;
+  }, {} as Record<string, { category: string; skills: typeof skills }>);
+
+  const skillCategories = Object.values(groupedSkills).slice(0, 6);
+
+  // Type assertion helper for view checks - computed for each render
+  const isPresentation = useMemo(() => (view as ResumeView) === "presentation", [view]);
+
+  // Helper function to safely set view
+  const safeSetView = useCallback((newView: ResumeView) => {
+    setView(newView);
+  }, []);
 
   const handlePDFGeneration = async () => {
     setIsGeneratingPDF(true);
@@ -50,30 +72,30 @@ export function SimpleResumeContainer() {
     { title: "Certifications", content: "certifications" },
   ];
 
-  const handlePresentationMode = () => {
-    setView("presentation");
+  const handlePresentationMode = useCallback(() => {
+    safeSetView("presentation");
     setCurrentSlide(0);
-  };
+  }, [safeSetView]);
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
+  }, [slides.length]);
 
-  const prevSlide = () => {
+  const prevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
+  }, [slides.length]);
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = useCallback(() => {
     if (!isFullscreen) {
       document.documentElement.requestFullscreen?.();
     } else {
       document.exitFullscreen?.();
     }
     setIsFullscreen(!isFullscreen);
-  };
+  }, [isFullscreen]);
 
   // Keyboard navigation for presentation mode
-  const handleKeyPress = (e: KeyboardEvent) => {
+  const handleKeyPress = useCallback((e: KeyboardEvent) => {
     if (view === "presentation") {
       switch (e.key) {
         case "ArrowRight":
@@ -84,7 +106,7 @@ export function SimpleResumeContainer() {
           prevSlide();
           break;
         case "Escape":
-          setView("interactive");
+          safeSetView("interactive");
           break;
         case "f":
         case "F":
@@ -92,7 +114,7 @@ export function SimpleResumeContainer() {
           break;
       }
     }
-  };
+  }, [view, nextSlide, prevSlide, toggleFullscreen, safeSetView]);
 
   // Add keyboard event listener
   useEffect(() => {
@@ -100,7 +122,9 @@ export function SimpleResumeContainer() {
       window.addEventListener("keydown", handleKeyPress);
       return () => window.removeEventListener("keydown", handleKeyPress);
     }
-  }, [view]);
+    // Return nothing if window is not available
+    return undefined;
+  }, [handleKeyPress]);
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {
@@ -117,6 +141,17 @@ export function SimpleResumeContainer() {
 
   const renderPresentationSlide = () => {
     const slide = slides[currentSlide];
+    
+    if (!slide) {
+      return (
+        <div className="space-y-8">
+          <h2 className="text-4xl font-bold mb-8">Slide Not Found</h2>
+          <p className="text-xl text-slate-300">
+            Unable to load slide content.
+          </p>
+        </div>
+      );
+    }
 
     switch (slide.content) {
       case "header":
@@ -148,7 +183,7 @@ export function SimpleResumeContainer() {
           >
             <h2 className="text-4xl font-bold mb-8">Professional Experience</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {experience.slice(0, 4).map((job, index) => (
+              {experience.slice(0, 4).map((job) => (
                 <div key={job.id} className="bg-slate-800 rounded-lg p-6">
                   <h3 className="text-2xl font-semibold text-blue-300 mb-2">
                     {job.position}
@@ -303,7 +338,7 @@ export function SimpleResumeContainer() {
           </button>
 
           <button
-            onClick={() => setView("interactive")}
+            onClick={() => safeSetView("interactive")}
             className="text-white hover:text-red-300 transition-colors text-sm"
           >
             Exit
@@ -343,14 +378,14 @@ export function SimpleResumeContainer() {
             >
               <h1
                 className={`font-bold mb-2 ${
-                  view === "presentation" ? "text-5xl" : "text-4xl"
+                  isPresentation ? "text-5xl" : "text-4xl"
                 } ${format === "minimal" ? "font-light" : ""}`}
               >
                 {personalInfo.name}
               </h1>
               <p
                 className={`mb-4 ${
-                  view === "presentation" ? "text-2xl" : "text-xl"
+                  isPresentation ? "text-2xl" : "text-xl"
                 } ${
                   format === "creative"
                     ? "text-blue-100"
@@ -389,7 +424,7 @@ export function SimpleResumeContainer() {
             >
               <h2
                 className={`font-bold mb-6 ${
-                  view === "presentation" ? "text-3xl" : "text-2xl"
+                  isPresentation ? "text-3xl" : "text-2xl"
                 } ${
                   format === "minimal" ? "font-light" : ""
                 } text-slate-900 dark:text-white`}
@@ -397,7 +432,7 @@ export function SimpleResumeContainer() {
                 Professional Experience
               </h2>
               <div className="space-y-8">
-                {experience.slice(0, 4).map((job, index) => (
+                {experience.slice(0, 4).map((job: Experience, index: number) => (
                   <motion.div
                     key={job.id}
                     initial={{ opacity: 0, x: -20 }}
@@ -415,14 +450,14 @@ export function SimpleResumeContainer() {
                       <div>
                         <h3
                           className={`font-semibold ${
-                            view === "presentation" ? "text-2xl" : "text-xl"
+                            isPresentation ? "text-2xl" : "text-xl"
                           } text-slate-900 dark:text-white`}
                         >
                           {job.position}
                         </h3>
                         <p
                           className={`${
-                            view === "presentation" ? "text-lg" : ""
+                            isPresentation ? "text-lg" : ""
                           } text-slate-600 dark:text-slate-400 mt-1`}
                         >
                           {job.company} • {job.location}
@@ -430,7 +465,7 @@ export function SimpleResumeContainer() {
                       </div>
                       <span
                         className={`${
-                          view === "presentation" ? "text-lg" : "text-sm"
+                          isPresentation ? "text-lg" : "text-sm"
                         } text-slate-500 dark:text-slate-400 mt-2 lg:mt-0`}
                       >
                         {getDateRange(job.startDate, job.endDate, job.current)}
@@ -449,7 +484,7 @@ export function SimpleResumeContainer() {
                       <ul className="list-disc list-inside space-y-1 text-sm text-slate-600 dark:text-slate-400">
                         {job.responsibilities
                           .slice(0, 3)
-                          .map((responsibility, idx) => (
+                          .map((responsibility: string, idx: number) => (
                             <li key={idx}>{responsibility}</li>
                           ))}
                       </ul>
@@ -457,7 +492,7 @@ export function SimpleResumeContainer() {
 
                     {/* Technologies */}
                     <div className="flex flex-wrap gap-2">
-                      {job.technologies.slice(0, 6).map((tech) => (
+                      {job.technologies.slice(0, 6).map((tech: string) => (
                         <span
                           key={tech}
                           className="px-2 py-1 text-xs bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded"
@@ -480,7 +515,7 @@ export function SimpleResumeContainer() {
             >
               <h2
                 className={`font-bold mb-6 ${
-                  view === "presentation" ? "text-3xl" : "text-2xl"
+                  isPresentation ? "text-3xl" : "text-2xl"
                 } ${
                   format === "minimal" ? "font-light" : ""
                 } text-slate-900 dark:text-white`}
@@ -488,7 +523,7 @@ export function SimpleResumeContainer() {
                 Technical Skills
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {skills.slice(0, 6).map((category, index) => (
+                {skillCategories.map((category, index) => (
                   <motion.div
                     key={category.category}
                     initial={{ opacity: 0, y: 20 }}
@@ -497,7 +532,7 @@ export function SimpleResumeContainer() {
                     className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm"
                   >
                     <h3 className="font-semibold text-slate-900 dark:text-white mb-3">
-                      {category.category}
+                      {category.category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                     </h3>
                     <div className="space-y-2">
                       {category.skills.slice(0, 4).map((skill) => (
@@ -528,7 +563,7 @@ export function SimpleResumeContainer() {
             >
               <h2
                 className={`font-bold mb-6 ${
-                  view === "presentation" ? "text-3xl" : "text-2xl"
+                  isPresentation ? "text-3xl" : "text-2xl"
                 } ${
                   format === "minimal" ? "font-light" : ""
                 } text-slate-900 dark:text-white`}
@@ -548,7 +583,7 @@ export function SimpleResumeContainer() {
                       <div>
                         <h3
                           className={`font-semibold ${
-                            view === "presentation" ? "text-xl" : "text-lg"
+                            isPresentation ? "text-xl" : "text-lg"
                           } text-slate-900 dark:text-white`}
                         >
                           {edu.degree}
@@ -598,7 +633,7 @@ export function SimpleResumeContainer() {
             >
               <h2
                 className={`font-bold mb-6 ${
-                  view === "presentation" ? "text-3xl" : "text-2xl"
+                  isPresentation ? "text-3xl" : "text-2xl"
                 } ${
                   format === "minimal" ? "font-light" : ""
                 } text-slate-900 dark:text-white`}

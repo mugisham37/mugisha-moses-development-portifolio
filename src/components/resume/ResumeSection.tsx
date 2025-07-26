@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode } from "react";
-import { motion } from "framer-motion";
 import { ResumeFormat } from "./ResumeContainer";
 
 interface ResumeSectionProps {
@@ -17,17 +16,6 @@ export function ResumeSection({
   children,
   className = "",
 }: ResumeSectionProps) {
-  const getSectionStyles = () => {
-    switch (format) {
-      case "creative":
-        return "creative-section";
-      case "minimal":
-        return "minimal-section";
-      default:
-        return "standard-section";
-    }
-  };
-
   if (format === "minimal") {
     return (
       <section className={`minimal-section ${className}`}>

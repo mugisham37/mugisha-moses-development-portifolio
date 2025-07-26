@@ -157,6 +157,9 @@ export const achievements = [
   },
 ];
 
+// Re-export experience from experience.ts for backward compatibility
+export { experience } from "./experience";
+
 // Career Timeline Data
 export const careerTimeline = [
   {
