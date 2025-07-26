@@ -1,4 +1,4 @@
-import type { Skill, SkillCategory, SkillCategoryName } from "@/types";
+import type { Skill, SkillCategory} from "@/types";
 
 export const skills: Skill[] = [
   // Programming Languages

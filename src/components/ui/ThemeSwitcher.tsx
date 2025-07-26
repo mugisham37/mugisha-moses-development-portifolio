@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { AnimatePresence } from "framer-motion";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { Theme, themes } from "@/lib/theme";
-import { useMenuKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
+import { useMenuKeyboardNavigation } from "@/hooks";
 import {
-  createAriaAttributes,
   generateId,
   liveAnnouncer,
 } from "@/lib/accessibility";
+import { MotionButton, MotionDiv, MotionSpan } from "./motion-components";
 
 interface ThemeSwitcherProps {
   variant?: "dropdown" | "toggle" | "cycle" | "grid";
@@ -32,6 +32,47 @@ export function ThemeSwitcher({
   const menuId = generateId("theme-menu");
   const { menuRef, triggerRef, selectedIndex } =
     useMenuKeyboardNavigation(isOpen);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (variant !== "dropdown") return;
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isOpen &&
+        triggerRef.current &&
+        !triggerRef.current.contains(event.target as Node) &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, variant, triggerRef, menuRef]);
+
+  // Handle menu close events
+  useEffect(() => {
+    if (variant !== "dropdown") return () => {};
+
+    const handleMenuClose = () => {
+      setIsOpen(false);
+    };
+
+    const currentMenuRef = menuRef.current;
+    if (currentMenuRef) {
+      currentMenuRef.addEventListener("menuClose", handleMenuClose);
+      return () => {
+        currentMenuRef.removeEventListener("menuClose", handleMenuClose);
+      };
+    }
+    
+    return () => {};
+  }, [variant, menuRef]);
 
   const sizeClasses = {
     sm: "w-8 h-8 text-xs",
@@ -63,48 +104,6 @@ export function ThemeSwitcher({
     }
   };
 
-  if (variant === "toggle") {
-    return (
-      <motion.button
-        onClick={() => {
-          toggleTheme();
-          const nextTheme = theme === "light" ? "dark" : "light";
-          liveAnnouncer?.announce(`Switched to ${nextTheme} theme`, "polite");
-        }}
-        onKeyDown={handleToggleKeyDown}
-        disabled={isTransitioning}
-        className={`
-          ${sizeClasses[size]} 
-          ${themeColors[theme]}
-          rounded-full border-2 flex items-center justify-center
-          transition-all duration-300 hover:scale-110 active:scale-95
-          disabled:opacity-50 disabled:cursor-not-allowed
-          focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
-          ${className}
-        `}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        aria-label={`Switch to ${
-          theme === "light" ? "dark" : "light"
-        } theme. Current theme: ${theme}`}
-        aria-pressed={theme === "dark"}
-      >
-        <AnimatePresence mode="wait">
-          <motion.span
-            key={theme}
-            initial={{ rotate: -180, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            exit={{ rotate: 180, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            aria-hidden="true"
-          >
-            {themeIcons[theme]}
-          </motion.span>
-        </AnimatePresence>
-      </motion.button>
-    );
-  }
-
   // Handle keyboard navigation for cycle
   const handleCycleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -117,47 +116,6 @@ export function ThemeSwitcher({
     }
   };
 
-  if (variant === "cycle") {
-    return (
-      <motion.button
-        onClick={() => {
-          const currentIndex = themes.indexOf(theme);
-          const nextIndex = (currentIndex + 1) % themes.length;
-          const nextTheme = themes[nextIndex];
-          cycleTheme();
-          liveAnnouncer?.announce(`Switched to ${nextTheme} theme`, "polite");
-        }}
-        onKeyDown={handleCycleKeyDown}
-        disabled={isTransitioning}
-        className={`
-          ${sizeClasses[size]} 
-          ${themeColors[theme]}
-          rounded-full border-2 flex items-center justify-center
-          transition-all duration-300 hover:scale-110 active:scale-95
-          disabled:opacity-50 disabled:cursor-not-allowed
-          focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
-          ${className}
-        `}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        aria-label={`Cycle through themes. Current theme: ${theme}. Press to switch to next theme.`}
-      >
-        <AnimatePresence mode="wait">
-          <motion.span
-            key={theme}
-            initial={{ rotateY: -90, opacity: 0 }}
-            animate={{ rotateY: 0, opacity: 1 }}
-            exit={{ rotateY: 90, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            aria-hidden="true"
-          >
-            {themeIcons[theme]}
-          </motion.span>
-        </AnimatePresence>
-      </motion.button>
-    );
-  }
-
   // Handle keyboard navigation for grid
   const handleGridKeyDown = (event: React.KeyboardEvent, themeName: Theme) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -166,57 +124,6 @@ export function ThemeSwitcher({
       liveAnnouncer?.announce(`Switched to ${themeName} theme`, "polite");
     }
   };
-
-  if (variant === "grid") {
-    return (
-      <div
-        className={`grid grid-cols-2 gap-2 ${className}`}
-        role="radiogroup"
-        aria-label="Theme selection"
-      >
-        {themes.map((themeName) => (
-          <motion.button
-            key={themeName}
-            onClick={() => {
-              setTheme(themeName);
-              liveAnnouncer?.announce(
-                `Switched to ${themeName} theme`,
-                "polite"
-              );
-            }}
-            onKeyDown={(e) => handleGridKeyDown(e, themeName)}
-            disabled={isTransitioning}
-            className={`
-              ${sizeClasses[size]}
-              ${
-                theme === themeName
-                  ? themeColors[themeName]
-                  : "bg-muted text-muted-foreground border-border"
-              }
-              rounded-lg border-2 flex flex-col items-center justify-center
-              transition-all duration-300 hover:scale-105 active:scale-95
-              disabled:opacity-50 disabled:cursor-not-allowed
-              focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
-            `}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            role="radio"
-            aria-checked={theme === themeName}
-            aria-label={`${themeName} theme${
-              theme === themeName ? " (current)" : ""
-            }`}
-          >
-            <span className="text-lg" aria-hidden="true">
-              {themeIcons[themeName]}
-            </span>
-            {showLabels && (
-              <span className="text-xs capitalize mt-1">{themeName}</span>
-            )}
-          </motion.button>
-        ))}
-      </div>
-    );
-  }
 
   // Handle dropdown keyboard navigation
   const handleDropdownToggle = () => {
@@ -252,46 +159,15 @@ export function ThemeSwitcher({
     liveAnnouncer?.announce(`Switched to ${themeName} theme`, "polite");
   };
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isOpen &&
-        triggerRef.current &&
-        !triggerRef.current.contains(event.target as Node) &&
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen]);
-
-  // Listen for menu close events
-  useEffect(() => {
-    const handleMenuClose = () => {
-      setIsOpen(false);
-    };
-
-    if (menuRef.current) {
-      menuRef.current.addEventListener("menuClose", handleMenuClose);
-      return () => {
-        menuRef.current?.removeEventListener("menuClose", handleMenuClose);
-      };
-    }
-  }, [isOpen, menuRef]);
-
-  // Default dropdown variant
-  return (
-    <div className={`relative ${className}`}>
-      <motion.button
-        ref={triggerRef}
-        id={switcherId}
-        onClick={handleDropdownToggle}
-        onKeyDown={handleTriggerKeyDown}
+  if (variant === "toggle") {
+    return (
+      <MotionButton
+        onClick={() => {
+          toggleTheme();
+          const nextTheme = theme === "light" ? "dark" : "light";
+          liveAnnouncer?.announce(`Switched to ${nextTheme} theme`, "polite");
+        }}
+        onKeyDown={handleToggleKeyDown}
         disabled={isTransitioning}
         className={`
           ${sizeClasses[size]} 
@@ -300,57 +176,182 @@ export function ThemeSwitcher({
           transition-all duration-300 hover:scale-110 active:scale-95
           disabled:opacity-50 disabled:cursor-not-allowed
           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+          ${className}
         `}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        {...createAriaAttributes.expandableButton(isOpen, menuId)}
-        aria-label={`Change theme. Current theme: ${theme}`}
+        aria-label={`Switch to ${
+          theme === "light" ? "dark" : "light"
+        } theme. Current theme: ${theme}`}
+        aria-pressed={theme === "dark"}
       >
         <AnimatePresence mode="wait">
-          <motion.span
+          <MotionSpan
             key={theme}
-            initial={{ scale: 0, opacity: 0 }}
+            initial={{ rotate: -180, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            exit={{ rotate: 180, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            aria-hidden="true"
+          >
+            {themeIcons[theme]}
+          </MotionSpan>
+        </AnimatePresence>
+      </MotionButton>
+    );
+  }
+
+  if (variant === "cycle") {
+    return (
+      <MotionButton
+        onClick={() => {
+          const currentIndex = themes.indexOf(theme);
+          const nextIndex = (currentIndex + 1) % themes.length;
+          const nextTheme = themes[nextIndex];
+          cycleTheme();
+          liveAnnouncer?.announce(`Switched to ${nextTheme} theme`, "polite");
+        }}
+        onKeyDown={handleCycleKeyDown}
+        disabled={isTransitioning}
+        className={`
+          ${sizeClasses[size]}
+          ${themeColors[theme]}
+          rounded-lg border-2 flex items-center justify-center
+          transition-all duration-300 hover:scale-105 active:scale-95
+          disabled:opacity-50 disabled:cursor-not-allowed
+          focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+          ${className}
+        `}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        aria-label={`Cycle to next theme. Current theme: ${theme}`}
+      >
+        <AnimatePresence mode="wait">
+          <MotionSpan
+            key={theme}
+            initial={{ rotateY: -90, opacity: 0 }}
+            animate={{ rotateY: 0, opacity: 1 }}
+            exit={{ rotateY: 90, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            aria-hidden="true"
+          >
+            {themeIcons[theme]}
+          </MotionSpan>
+        </AnimatePresence>
+      </MotionButton>
+    );
+  }
+
+  if (variant === "grid") {
+    return (
+      <div
+        className={`grid grid-cols-2 gap-2 ${className}`}
+        role="radiogroup"
+        aria-label="Theme selection"
+      >
+        {themes.map((themeName) => (
+          <MotionButton
+            key={themeName}
+            onClick={() => {
+              setTheme(themeName);
+              liveAnnouncer?.announce(
+                `Switched to ${themeName} theme`,
+                "polite"
+              );
+            }}
+            onKeyDown={(e: React.KeyboardEvent) => handleGridKeyDown(e, themeName)}
+            disabled={isTransitioning}
+            className={`
+              ${sizeClasses[size]}
+              ${theme === themeName ? themeColors[themeName] : "bg-muted border border-muted-foreground/20"}
+              flex flex-col items-center justify-center gap-1 p-2
+              rounded-lg transition-all duration-200 hover:scale-105
+              disabled:opacity-50 disabled:cursor-not-allowed
+              focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+            `}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            role="radio"
+            aria-checked={theme === themeName}
+            aria-label={`Switch to ${themeName} theme`}
+          >
+            <span className="text-lg" aria-hidden="true">
+              {themeIcons[themeName]}
+            </span>
+            {showLabels && (
+              <span className="text-xs capitalize mt-1">{themeName}</span>
+            )}
+          </MotionButton>
+        ))}
+      </div>
+    );
+  }
+
+  // Default to dropdown variant
+  return (
+    <div className={`relative ${className}`}>
+      <MotionButton
+        ref={triggerRef}
+        onClick={handleDropdownToggle}
+        onKeyDown={handleTriggerKeyDown}
+        disabled={isTransitioning}
+        className={`
+          ${sizeClasses[size]}
+          ${themeColors[theme]}
+          rounded-lg border-2 flex items-center justify-center
+          transition-all duration-300 hover:scale-105 active:scale-95
+          disabled:opacity-50 disabled:cursor-not-allowed
+          focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+        `}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        aria-label={`Theme switcher. Current theme: ${theme}. Click to open menu.`}
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+        id={switcherId}
+        role="button"
+        aria-describedby={`${switcherId}-description`}
+      >
+        <AnimatePresence mode="wait">
+          <MotionSpan
+            key={theme}
+            initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
+            exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.2 }}
             aria-hidden="true"
           >
             {themeIcons[theme]}
-          </motion.span>
+          </MotionSpan>
         </AnimatePresence>
-      </motion.button>
+      </MotionButton>
 
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop */}
-            <motion.div
+            <MotionDiv
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-40"
               onClick={() => setIsOpen(false)}
             />
-
-            {/* Dropdown */}
-            <motion.div
+            <MotionDiv
               ref={menuRef}
               id={menuId}
               role="menu"
               aria-labelledby={switcherId}
               aria-activedescendant={
-                selectedIndex >= 0
-                  ? `theme-option-${themes[selectedIndex]}`
-                  : undefined
+                selectedIndex >= 0 ? `theme-option-${themes[selectedIndex]}` : undefined
               }
-              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              initial={{ opacity: 0, scale: 0.9, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              exit={{ opacity: 0, scale: 0.9, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="absolute top-full mt-2 right-0 z-50 bg-card border border-border rounded-lg shadow-lg overflow-hidden"
+              className="absolute top-full left-0 mt-2 min-w-[8rem] bg-popover border border-border rounded-lg shadow-lg overflow-hidden z-50"
             >
               {themes.map((themeName, index) => (
-                <motion.button
+                <MotionButton
                   key={themeName}
                   id={`theme-option-${themeName}`}
                   role="menuitem"
@@ -358,126 +359,85 @@ export function ThemeSwitcher({
                   onClick={() => handleThemeSelect(themeName)}
                   disabled={isTransitioning}
                   className={`
-                    w-full px-4 py-3 flex items-center gap-3 text-left
+                    w-full px-3 py-2 text-left flex items-center gap-3
                     transition-colors duration-200
-                    hover:bg-muted/50 active:bg-muted
-                    focus:outline-none focus:bg-muted/50
-                    disabled:opacity-50 disabled:cursor-not-allowed
-                    ${
-                      theme === themeName
-                        ? "bg-muted text-foreground"
-                        : "text-muted-foreground"
+                    ${theme === themeName
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted"
                     }
-                    ${selectedIndex === index ? "bg-muted/50" : ""}
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                    focus:outline-none focus:bg-muted
                   `}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
                   aria-current={theme === themeName ? "true" : "false"}
                 >
-                  <span className="text-lg" aria-hidden="true">
+                  <span className="text-base" aria-hidden="true">
                     {themeIcons[themeName]}
                   </span>
-                  {showLabels && (
+                  <div className="flex flex-col">
                     <span className="capitalize font-medium">{themeName}</span>
+                    {theme === themeName && (
+                      <MotionDiv
+                        layoutId="selected-indicator"
+                        className="absolute inset-y-0 left-0 w-1 bg-primary"
+                        transition={{ duration: 0.2 }}
+                        aria-hidden="true"
+                      />
+                    )}
+                  </div>
+                  {showLabels && theme === themeName && (
+                    <span className="ml-auto text-xs opacity-75">Current</span>
                   )}
-                  {theme === themeName && (
-                    <motion.div
-                      layoutId="activeTheme"
-                      className="ml-auto w-2 h-2 bg-primary rounded-full"
-                      transition={{ duration: 0.2 }}
-                      aria-hidden="true"
-                    />
-                  )}
-                </motion.button>
+                </MotionButton>
               ))}
-            </motion.div>
+            </MotionDiv>
           </>
         )}
       </AnimatePresence>
+
+      {/* Screen reader description */}
+      <div
+        id={`${switcherId}-description`}
+        className="sr-only"
+        aria-live="polite"
+      >
+        Theme switcher with {themes.length} options: {themes.join(", ")}. 
+        Current theme: {theme}.
+      </div>
     </div>
   );
 }
 
-// Theme preview component for showcasing themes
-interface ThemePreviewProps {
-  themeName: Theme;
-  isActive?: boolean;
-  onClick?: () => void;
-  className?: string;
+// Compact variant
+export function CompactThemeSwitcher({
+  className = "",
+  ...props
+}: Omit<ThemeSwitcherProps, "size" | "showLabels" | "variant">) {
+  return (
+    <ThemeSwitcher
+      variant="toggle"
+      size="sm"
+      showLabels={false}
+      className={className}
+      {...props}
+    />
+  );
 }
 
-export function ThemePreview({
-  themeName,
-  isActive = false,
-  onClick,
+// Grid variant with labels
+export function GridThemeSwitcher({
   className = "",
-}: ThemePreviewProps) {
-  const themeConfig = {
-    light: {
-      bg: "bg-white",
-      primary: "bg-blue-500",
-      secondary: "bg-purple-500",
-      text: "text-gray-900",
-    },
-    dark: {
-      bg: "bg-gray-900",
-      primary: "bg-blue-400",
-      secondary: "bg-purple-400",
-      text: "text-white",
-    },
-    neon: {
-      bg: "bg-black",
-      primary: "bg-pink-500",
-      secondary: "bg-cyan-400",
-      text: "text-white",
-    },
-    minimal: {
-      bg: "bg-gray-50",
-      primary: "bg-gray-800",
-      secondary: "bg-gray-600",
-      text: "text-gray-900",
-    },
-  };
-
-  const config = themeConfig[themeName];
-
+  ...props
+}: Omit<ThemeSwitcherProps, "variant">) {
   return (
-    <motion.div
-      onClick={onClick}
-      className={`
-        relative w-24 h-16 rounded-lg overflow-hidden cursor-pointer
-        border-2 transition-all duration-300
-        ${
-          isActive
-            ? "border-primary shadow-lg"
-            : "border-border hover:border-muted-foreground"
-        }
-        ${className}
-      `}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-    >
-      <div className={`w-full h-full ${config.bg} flex flex-col`}>
-        <div className="flex-1 p-2">
-          <div className={`w-full h-2 ${config.primary} rounded mb-1`} />
-          <div className={`w-3/4 h-1 ${config.secondary} rounded`} />
-        </div>
-        <div className="h-4 bg-opacity-20 bg-black flex items-center justify-center">
-          <span className={`text-xs font-medium ${config.text} capitalize`}>
-            {themeName}
-          </span>
-        </div>
-      </div>
-
-      {isActive && (
-        <motion.div
-          layoutId="activePreview"
-          className="absolute inset-0 border-2 border-primary rounded-lg"
-          transition={{ duration: 0.2 }}
-        />
-      )}
-    </motion.div>
+    <ThemeSwitcher
+      variant="grid"
+      showLabels={true}
+      className={className}
+      {...props}
+    />
   );
 }
 

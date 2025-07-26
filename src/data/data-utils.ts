@@ -85,6 +85,8 @@ export class DataUtils {
     if (sortedExp.length === 0) return 0;
 
     const firstJob = sortedExp[0];
+    if (!firstJob) return 0;
+    
     const currentDate = new Date();
     const totalMs = currentDate.getTime() - firstJob.startDate.getTime();
     return Math.floor(totalMs / (1000 * 60 * 60 * 24 * 365.25));

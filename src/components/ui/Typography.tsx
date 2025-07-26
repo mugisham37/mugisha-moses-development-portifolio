@@ -1,6 +1,7 @@
 import React from "react";
-import { motion, HTMLMotionProps } from "framer-motion";
+import { HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { MotionDiv, MotionSpan } from "./motion-components";
 
 interface TypographyProps extends Omit<HTMLMotionProps<"div">, "children"> {
   variant?:
@@ -64,6 +65,12 @@ export function Typography({
   ...props
 }: TypographyProps) {
   const Component = as || getDefaultElement(variant);
+
+  // Ensure Component is defined
+  if (!Component) {
+    console.warn(`No component found for variant: ${variant}`);
+    return null;
+  }
 
   const baseStyles = cn(
     // Font family
@@ -183,9 +190,9 @@ export function Typography({
 
   if (animate) {
     return (
-      <motion.div className={combinedClassName} {...animationProps} {...props}>
+      <MotionDiv className={combinedClassName} {...animationProps} {...props}>
         {React.createElement(Component, {}, children)}
-      </motion.div>
+      </MotionDiv>
     );
   }
 
@@ -218,8 +225,8 @@ export function Heading({
 }: Omit<TypographyProps, "variant" | "as"> & {
   level?: 1 | 2 | 3 | 4 | 5 | 6;
 }) {
-  const variant = `h${level}` as TypographyProps["variant"];
-  const as = `h${level}` as TypographyProps["as"];
+  const variant = `h${level}` as NonNullable<TypographyProps["variant"]>;
+  const as = `h${level}` as NonNullable<TypographyProps["as"]>;
 
   return (
     <Typography variant={variant} as={as} {...props}>
@@ -301,13 +308,13 @@ export function AnimatedText({
   ...props
 }: TypographyProps & { delay?: number }) {
   return (
-    <motion.div
+    <MotionDiv
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay, ease: "easeOut" }}
     >
       <Typography {...props}>{children}</Typography>
-    </motion.div>
+    </MotionDiv>
   );
 }
 
@@ -328,12 +335,14 @@ export function TypewriterText({
 
       return () => clearTimeout(timeout);
     }
+    
+    return () => {};
   }, [currentIndex, text, speed]);
 
   return (
     <Typography {...props}>
       {displayText}
-      <motion.span
+      <MotionSpan
         animate={{ opacity: [1, 0] }}
         transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse" }}
         className="inline-block w-0.5 h-[1em] bg-current ml-1"

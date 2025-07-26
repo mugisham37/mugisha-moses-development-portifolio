@@ -4,9 +4,6 @@ import {
   skills,
   experience,
   testimonials,
-  personalInfo,
-  achievements,
-  certifications,
 } from "./index";
 
 // Data validation utilities

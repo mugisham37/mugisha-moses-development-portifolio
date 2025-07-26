@@ -1,4 +1,4 @@
-import type { MetricValue, PerformanceMetric } from "@/types";
+import type { MetricValue } from "@/types";
 
 // Enhanced project metrics and KPIs
 export const portfolioMetrics = {

@@ -1,4 +1,3 @@
-import type { Project, Skill, Experience, Testimonial } from "@/types";
 import {
   projects,
   skills,
@@ -7,8 +6,6 @@ import {
   personalInfo,
   socialLinks,
   achievements,
-  careerTimeline,
-  education,
   certifications,
   speakingEngagements,
   publications,
@@ -266,6 +263,8 @@ export class DataAggregator {
     if (sortedExperience.length === 0) return 0;
 
     const firstJob = sortedExperience[0];
+    if (!firstJob) return 0;
+    
     const currentDate = new Date();
     const totalMs = currentDate.getTime() - firstJob.startDate.getTime();
     return Math.floor(totalMs / (1000 * 60 * 60 * 24 * 365.25)); // Convert to years

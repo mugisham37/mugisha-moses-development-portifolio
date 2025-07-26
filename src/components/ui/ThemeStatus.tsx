@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { MotionDiv } from "./motion-components";
 import { useTheme } from "@/components/providers/ThemeProvider";
 
 interface ThemeStatusProps {
@@ -17,7 +17,7 @@ export function ThemeStatus({
     useTheme();
 
   return (
-    <motion.div
+    <MotionDiv
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={`bg-card border border-border rounded-lg p-4 ${className}`}
@@ -29,7 +29,7 @@ export function ThemeStatus({
             Current Theme
           </span>
           <div className="flex items-center gap-2">
-            <motion.div
+            <MotionDiv
               className={`w-3 h-3 rounded-full ${
                 isTransitioning ? "bg-yellow-500" : "bg-green-500"
               }`}
@@ -128,7 +128,7 @@ export function ThemeStatus({
           </div>
         )}
       </div>
-    </motion.div>
+    </MotionDiv>
   );
 }
 
