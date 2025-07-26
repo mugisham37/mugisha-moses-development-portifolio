@@ -137,7 +137,7 @@ export class KeyboardNavigationManager {
             this.config.orientation === "both")
         ) {
           event.preventDefault();
-          this.handleArrowNavigation(key === "ArrowUp" ? -1 : 1, "vertical");
+          this.handleArrowNavigation(key === "ArrowUp" ? -1 : 1);
         }
         break;
 
@@ -149,10 +149,7 @@ export class KeyboardNavigationManager {
             this.config.orientation === "both")
         ) {
           event.preventDefault();
-          this.handleArrowNavigation(
-            key === "ArrowLeft" ? -1 : 1,
-            "horizontal"
-          );
+          this.handleArrowNavigation(key === "ArrowLeft" ? -1 : 1);
         }
         break;
 
@@ -206,23 +203,20 @@ export class KeyboardNavigationManager {
 
     if (event.shiftKey) {
       // Shift + Tab (backward)
-      if (activeElement === firstElement) {
+      if (activeElement === firstElement && lastElement) {
         event.preventDefault();
         lastElement.focus();
       }
     } else {
       // Tab (forward)
-      if (activeElement === lastElement) {
+      if (activeElement === lastElement && firstElement) {
         event.preventDefault();
         firstElement.focus();
       }
     }
   }
 
-  private handleArrowNavigation(
-    direction: number,
-    orientation: "horizontal" | "vertical"
-  ): void {
+  private handleArrowNavigation(direction: number): void {
     this.updateFocusableElements();
 
     if (this.focusableElements.length === 0) return;
@@ -301,8 +295,9 @@ export class KeyboardNavigationManager {
     });
 
     // Set first element to tabindex="0"
-    if (this.focusableElements.length > 0) {
-      this.focusableElements[0].setAttribute("tabindex", "0");
+    const firstElement = this.focusableElements[0];
+    if (firstElement) {
+      firstElement.setAttribute("tabindex", "0");
       this.currentIndex = 0;
     }
   }
@@ -311,13 +306,15 @@ export class KeyboardNavigationManager {
     if (!this.config.useRovingTabindex) return;
 
     // Remove tabindex="0" from current element
-    if (this.currentIndex >= 0 && this.focusableElements[this.currentIndex]) {
-      this.focusableElements[this.currentIndex].setAttribute("tabindex", "-1");
+    const currentElement = this.focusableElements[this.currentIndex];
+    if (this.currentIndex >= 0 && currentElement) {
+      currentElement.setAttribute("tabindex", "-1");
     }
 
     // Set tabindex="0" on new element
-    if (newIndex >= 0 && this.focusableElements[newIndex]) {
-      this.focusableElements[newIndex].setAttribute("tabindex", "0");
+    const newElement = this.focusableElements[newIndex];
+    if (newIndex >= 0 && newElement) {
+      newElement.setAttribute("tabindex", "0");
     }
 
     this.currentIndex = newIndex;
@@ -325,8 +322,9 @@ export class KeyboardNavigationManager {
 
   // Public methods
   public focusFirst(): void {
-    if (this.focusableElements.length > 0) {
-      this.focusableElements[0].focus();
+    const firstElement = this.focusableElements[0];
+    if (firstElement) {
+      firstElement.focus();
       if (this.config.useRovingTabindex) {
         this.updateRovingTabindex(0);
       }
@@ -334,9 +332,10 @@ export class KeyboardNavigationManager {
   }
 
   public focusLast(): void {
-    if (this.focusableElements.length > 0) {
-      const lastIndex = this.focusableElements.length - 1;
-      this.focusableElements[lastIndex].focus();
+    const lastIndex = this.focusableElements.length - 1;
+    const lastElement = this.focusableElements[lastIndex];
+    if (lastElement) {
+      lastElement.focus();
       if (this.config.useRovingTabindex) {
         this.updateRovingTabindex(lastIndex);
       }
@@ -344,11 +343,11 @@ export class KeyboardNavigationManager {
   }
 
   public focusNext(): void {
-    this.handleArrowNavigation(1, this.config.orientation || "both");
+    this.handleArrowNavigation(1);
   }
 
   public focusPrevious(): void {
-    this.handleArrowNavigation(-1, this.config.orientation || "both");
+    this.handleArrowNavigation(-1);
   }
 
   public refresh(): void {

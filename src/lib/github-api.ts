@@ -84,6 +84,13 @@ class RateLimiter {
 
 const rateLimiter = new RateLimiter();
 
+// GitHub API Error interface
+interface GitHubAPIErrorResponse {
+  status?: number;
+  message?: string;
+  documentation_url?: string;
+}
+
 // Retry utility with exponential backoff
 async function withRetry<T>(
   operation: () => Promise<T>,
@@ -93,7 +100,7 @@ async function withRetry<T>(
     await rateLimiter.waitIfNeeded();
     return await operation();
   } catch (error: unknown) {
-    const apiError = error as { status?: number };
+    const apiError = error as GitHubAPIErrorResponse;
     if (
       retries > 0 &&
       (apiError.status === 403 || (apiError.status && apiError.status >= 500))
@@ -110,10 +117,10 @@ async function withRetry<T>(
 class APICache {
   private cache = new Map<
     string,
-    { data: any; timestamp: number; ttl: number }
+    { data: unknown; timestamp: number; ttl: number }
   >();
 
-  set(key: string, data: any, ttl: number): void {
+  set(key: string, data: unknown, ttl: number): void {
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
@@ -189,10 +196,11 @@ export class GitHubAPIService {
 
       cache.set(cacheKey, profile, CACHE_DURATION.profile);
       return profile;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as GitHubAPIErrorResponse;
       throw new GitHubAPIError(
-        `Failed to fetch profile: ${error.message}`,
-        error.status
+        `Failed to fetch profile: ${apiError.message || 'Unknown error'}`,
+        apiError.status
       );
     }
   }
@@ -231,19 +239,19 @@ export class GitHubAPIService {
             fullName: repo.full_name,
             description: repo.description || "",
             url: repo.html_url,
-            homepage: repo.homepage || undefined,
+            ...(repo.homepage && { homepage: repo.homepage }),
             language: repo.language || "Unknown",
-            stars: repo.stargazers_count,
-            forks: repo.forks_count,
-            watchers: repo.watchers_count,
-            size: repo.size,
-            createdAt: new Date(repo.created_at),
-            updatedAt: new Date(repo.updated_at),
-            pushedAt: new Date(repo.pushed_at),
+            stars: repo.stargazers_count ?? 0,
+            forks: repo.forks_count ?? 0,
+            watchers: repo.watchers_count ?? 0,
+            size: repo.size ?? 0,
+            createdAt: new Date(repo.created_at || Date.now()),
+            updatedAt: new Date(repo.updated_at || Date.now()),
+            pushedAt: new Date(repo.pushed_at || Date.now()),
             topics: repo.topics || [],
-            isPrivate: repo.private,
-            isFork: repo.fork,
-            isArchived: repo.archived,
+            isPrivate: repo.private || false,
+            isFork: repo.fork || false,
+            isArchived: repo.archived ?? false,
           })
         );
 
@@ -255,10 +263,11 @@ export class GitHubAPIService {
 
       cache.set(cacheKey, repositories, CACHE_DURATION.repositories);
       return repositories;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as GitHubAPIErrorResponse;
       throw new GitHubAPIError(
-        `Failed to fetch repositories: ${error.message}`,
-        error.status
+        `Failed to fetch repositories: ${apiError.message || 'Unknown error'}`,
+        apiError.status
       );
     }
   }
@@ -284,10 +293,11 @@ export class GitHubAPIService {
 
       cache.set(cacheKey, contributionData, CACHE_DURATION.contributions);
       return contributionData;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as GitHubAPIErrorResponse;
       throw new GitHubAPIError(
-        `Failed to fetch contributions: ${error.message}`,
-        error.status
+        `Failed to fetch contributions: ${apiError.message || 'Unknown error'}`,
+        apiError.status
       );
     }
   }
@@ -327,7 +337,7 @@ export class GitHubAPIService {
             languageStats[language].bytes += bytes as number;
             totalBytes += bytes as number;
           });
-        } catch (error) {
+        } catch {
           // Skip repositories that can't be accessed
           console.warn(`Could not fetch languages for ${repo.name}`);
         }
@@ -335,16 +345,19 @@ export class GitHubAPIService {
 
       // Calculate percentages
       Object.keys(languageStats).forEach((language) => {
-        languageStats[language].percentage =
-          (languageStats[language].bytes / totalBytes) * 100;
+        const langStat = languageStats[language];
+        if (langStat) {
+          langStat.percentage = (langStat.bytes / totalBytes) * 100;
+        }
       });
 
       cache.set(cacheKey, languageStats, CACHE_DURATION.languages);
       return languageStats;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as GitHubAPIErrorResponse;
       throw new GitHubAPIError(
-        `Failed to fetch language stats: ${error.message}`,
-        error.status
+        `Failed to fetch language stats: ${apiError.message || 'Unknown error'}`,
+        apiError.status
       );
     }
   }
@@ -376,10 +389,11 @@ export class GitHubAPIService {
 
       cache.set(cacheKey, activity, CACHE_DURATION.activity);
       return activity;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as GitHubAPIErrorResponse;
       throw new GitHubAPIError(
-        `Failed to fetch activity: ${error.message}`,
-        error.status
+        `Failed to fetch activity: ${apiError.message || 'Unknown error'}`,
+        apiError.status
       );
     }
   }
@@ -405,10 +419,11 @@ export class GitHubAPIService {
         languages,
         activity,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as GitHubAPIErrorResponse;
       throw new GitHubAPIError(
-        `Failed to fetch GitHub data: ${error.message}`,
-        error.status
+        `Failed to fetch GitHub data: ${apiError.message || 'Unknown error'}`,
+        apiError.status
       );
     }
   }
@@ -447,7 +462,7 @@ export class GitHubAPIService {
         );
 
         commits.push(...repoCommits);
-      } catch (error) {
+      } catch {
         console.warn(`Could not fetch commits for ${repo.name}`);
       }
     }
@@ -479,7 +494,7 @@ export class GitHubAPIService {
           repository: pr.repository_url.split("/").pop() || "",
         })
       );
-    } catch (error) {
+    } catch {
       console.warn("Could not fetch recent pull requests");
       return [];
     }
@@ -507,7 +522,7 @@ export class GitHubAPIService {
           repository: issue.repository_url.split("/").pop() || "",
         })
       );
-    } catch (error) {
+    } catch {
       console.warn("Could not fetch recent issues");
       return [];
     }
@@ -519,7 +534,9 @@ export class GitHubAPIService {
 
     commits.forEach((commit) => {
       const dateKey = commit.author.date.toISOString().split("T")[0];
-      commitsByDate.set(dateKey, (commitsByDate.get(dateKey) || 0) + 1);
+      if (dateKey) {
+        commitsByDate.set(dateKey, (commitsByDate.get(dateKey) || 0) + 1);
+      }
     });
 
     // Calculate streaks
@@ -535,7 +552,7 @@ export class GitHubAPIService {
       const currentDate = sortedDates[i];
       const prevDate = i > 0 ? sortedDates[i - 1] : null;
 
-      if (prevDate) {
+      if (prevDate && currentDate) {
         const daysDiff = Math.floor(
           (new Date(currentDate).getTime() - new Date(prevDate).getTime()) /
             (1000 * 60 * 60 * 24)
@@ -594,7 +611,7 @@ export class GitHubAPIService {
         const day = new Date(weekStart);
         day.setDate(weekStart.getDate() + j);
         const dateKey = day.toISOString().split("T")[0];
-        const count = commitsByDate.get(dateKey) || 0;
+        const count = dateKey ? (commitsByDate.get(dateKey) || 0) : 0;
 
         days.push({
           date: day,
@@ -666,10 +683,11 @@ export class GitHubAPIService {
         search: response.data.resources.search,
         graphql: response.data.resources.graphql,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as GitHubAPIErrorResponse;
       throw new GitHubAPIError(
-        `Failed to get rate limit status: ${error.message}`,
-        error.status
+        `Failed to get rate limit status: ${apiError.message || 'Unknown error'}`,
+        apiError.status
       );
     }
   }

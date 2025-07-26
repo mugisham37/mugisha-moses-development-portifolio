@@ -61,7 +61,7 @@ export class ThemePersistence {
 
     try {
       return localStorage.getItem(this.preferenceKey) === "manual";
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -86,7 +86,7 @@ export class ThemePersistence {
       return window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
-    } catch (error) {
+    } catch {
       return "light";
     }
   }
@@ -143,7 +143,7 @@ export class ThemePersistence {
           localStorage.removeItem(oldKey);
           break;
         }
-      } catch (error) {
+      } catch {
         // Ignore migration errors
       }
     }
@@ -186,8 +186,8 @@ export class ThemeHydration {
     this.callbacks.forEach((callback) => {
       try {
         callback(theme);
-      } catch (error) {
-        console.warn("Theme hydration callback error:", error);
+      } catch {
+        console.warn("Theme hydration callback error");
       }
     });
     this.callbacks = [];

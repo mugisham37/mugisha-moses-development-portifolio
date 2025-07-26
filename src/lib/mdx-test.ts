@@ -23,10 +23,13 @@ export async function testMDXSystem() {
 
     // Test individual post loading
     if (blogPosts.length > 0) {
-      const firstPost = await ContentLoader.getBlogPost(blogPosts[0].slug);
-      console.log(
-        `✅ Successfully loaded individual post: ${firstPost?.title}`
-      );
+      const firstPostSlug = blogPosts[0]?.slug;
+      if (firstPostSlug) {
+        const firstPost = await ContentLoader.getBlogPost(firstPostSlug);
+        console.log(
+          `✅ Successfully loaded individual post: ${firstPost?.title}`
+        );
+      }
     }
 
     console.log("🎉 MDX Content System test completed successfully!");

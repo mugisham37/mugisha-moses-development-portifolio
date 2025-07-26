@@ -1,4 +1,4 @@
-import { getBlogPosts, getPublishedBlogPosts } from "./content-loader";
+import { getPublishedBlogPosts } from "./content-loader";
 import type { BlogPost } from "@/types";
 
 interface RSSConfig {
@@ -100,7 +100,7 @@ export class RSSGenerator {
     <ttl>${this.config.ttl}</ttl>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <pubDate>${
-      latestPosts.length > 0
+      latestPosts.length > 0 && latestPosts[0]
         ? latestPosts[0].publishedAt.toUTCString()
         : new Date().toUTCString()
     }</pubDate>
@@ -152,7 +152,7 @@ export class RSSGenerator {
   )}" rel="self" type="application/atom+xml"/>
   <id>${this.config.siteUrl}/blog</id>
   <updated>${
-    latestPosts.length > 0
+    latestPosts.length > 0 && latestPosts[0]
       ? latestPosts[0].publishedAt.toISOString()
       : new Date().toISOString()
   }</updated>
@@ -402,7 +402,7 @@ export class RSSGenerator {
       ),
       totalReadingTime: posts.reduce((acc, post) => acc + post.readingTime, 0),
       featuredPosts: posts.filter((post) => post.featured).length,
-      lastUpdated: posts.length > 0 ? posts[0].publishedAt : new Date(),
+      lastUpdated: posts.length > 0 && posts[0] ? posts[0].publishedAt : new Date(),
       categoryStats,
       tagStats: tagStats.slice(0, 10), // Top 10 tags
       monthlyStats: this.generateMonthlyStats(posts),

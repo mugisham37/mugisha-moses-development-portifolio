@@ -1,7 +1,6 @@
 import type {
   Repository,
   Commit,
-  ContributionData,
   ContributionWeek,
   ContributionDay,
 } from "@/types";
@@ -23,7 +22,9 @@ export function calculateContributionStreaks(commits: Commit[]): {
 
   commits.forEach((commit) => {
     const dateKey = commit.author.date.toISOString().split("T")[0];
-    commitsByDate.set(dateKey, (commitsByDate.get(dateKey) || 0) + 1);
+    if (dateKey) {
+      commitsByDate.set(dateKey, (commitsByDate.get(dateKey) || 0) + 1);
+    }
   });
 
   const sortedDates = Array.from(commitsByDate.keys()).sort();
@@ -39,8 +40,8 @@ export function calculateContributionStreaks(commits: Commit[]): {
     .split("T")[0];
 
   // Check if current streak is active (commits today or yesterday)
-  const hasCommitsToday = commitsByDate.has(todayStr);
-  const hasCommitsYesterday = commitsByDate.has(yesterdayStr);
+  const hasCommitsToday = todayStr ? commitsByDate.has(todayStr) : false;
+  const hasCommitsYesterday = yesterdayStr ? commitsByDate.has(yesterdayStr) : false;
   const isCurrentStreakActive = hasCommitsToday || hasCommitsYesterday;
 
   // Calculate streaks
@@ -48,7 +49,7 @@ export function calculateContributionStreaks(commits: Commit[]): {
     const currentDate = sortedDates[i];
     const prevDate = i > 0 ? sortedDates[i - 1] : null;
 
-    if (prevDate) {
+    if (prevDate && currentDate) {
       const daysDiff = Math.floor(
         (new Date(currentDate).getTime() - new Date(prevDate).getTime()) /
           (1000 * 60 * 60 * 24)
@@ -96,7 +97,9 @@ export function generateContributionCalendar(
 
   commits.forEach((commit) => {
     const dateKey = commit.author.date.toISOString().split("T")[0];
-    commitsByDate.set(dateKey, (commitsByDate.get(dateKey) || 0) + 1);
+    if (dateKey) {
+      commitsByDate.set(dateKey, (commitsByDate.get(dateKey) || 0) + 1);
+    }
   });
 
   const weeks: ContributionWeek[] = [];
@@ -119,7 +122,7 @@ export function generateContributionCalendar(
       day.setDate(weekStart.getDate() + dayIndex);
 
       const dateKey = day.toISOString().split("T")[0];
-      const count = commitsByDate.get(dateKey) || 0;
+      const count = dateKey ? (commitsByDate.get(dateKey) || 0) : 0;
 
       days.push({
         date: new Date(day),
